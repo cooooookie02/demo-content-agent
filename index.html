@@ -660,28 +660,76 @@
   .modal-overlay.show { display: flex; }
   .modal-sheet {
     width: 100%;
-    background: #fff;
+    background: #f5f5f5;
     border-radius: 24px 24px 0 0;
     padding: 20px 20px 40px;
     animation: sheetUp 0.35s cubic-bezier(.4,0,.2,1);
+    max-height: 85vh;
+    overflow-y: auto;
   }
+  .modal-sheet::-webkit-scrollbar { display: none; }
   @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-  .modal-title { font-size: 17px; font-weight: 700; text-align: center; margin-bottom: 20px; }
-  .time-slots { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
-  .slot {
-    padding: 10px 6px;
-    border: 1.5px solid #eee;
-    border-radius: 10px;
-    text-align: center;
+  .modal-title { font-size: 17px; font-weight: 700; text-align: center; margin-bottom: 4px; }
+  .modal-sub { font-size: 12px; color: #999; text-align: center; margin-bottom: 16px; }
+
+  .booking-section { margin-bottom: 16px; }
+  .booking-section-title {
+    font-size: 13px; font-weight: 700; color: #333;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* 门店选择 */
+  .store-list { display: flex; flex-direction: column; gap: 8px; }
+  .store-item {
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px 14px;
+    border: 2px solid transparent;
     cursor: pointer;
-    font-size: 12px;
-    color: #555;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .store-item.selected { border-color: #FF2442; background: #fff8f9; }
+  .store-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
     transition: all 0.15s;
   }
-  .slot.selected { border-color: #FF2442; background: #fff1f3; color: #FF2442; font-weight: 600; }
-  .slot .slot-time { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
-  .slot .slot-date { font-size: 11px; color: #999; }
-  .slot.selected .slot-date { color: #FF2442; }
+  .store-item.selected .store-dot { border-color: #FF2442; background: #FF2442; }
+  .store-item.selected .store-dot::after { content: ''; width: 6px; height: 6px; background: #fff; border-radius: 50%; display: block; }
+  .store-info { flex: 1; }
+  .store-name { font-size: 14px; font-weight: 600; color: #111; }
+  .store-addr { font-size: 11px; color: #999; margin-top: 2px; }
+  .store-tag { font-size: 11px; color: #FF2442; background: #fff1f0; padding: 2px 8px; border-radius: 8px; flex-shrink: 0; }
+
+  /* 时间选择 */
+  .date-tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+  .date-tab {
+    flex: 1; padding: 8px 4px; text-align: center;
+    background: #fff; border-radius: 10px;
+    border: 2px solid transparent; cursor: pointer;
+    font-size: 12px; color: #555; transition: all 0.15s;
+  }
+  .date-tab.selected { border-color: #FF2442; color: #FF2442; font-weight: 700; background: #fff8f9; }
+  .date-tab .dt-day { font-size: 15px; font-weight: 700; }
+  .date-tab .dt-label { font-size: 10px; color: #999; margin-top: 1px; }
+  .date-tab.selected .dt-label { color: #FF2442; }
+
+  .time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .time-chip {
+    padding: 8px 4px; text-align: center;
+    background: #fff; border-radius: 8px;
+    border: 2px solid transparent; cursor: pointer;
+    font-size: 13px; font-weight: 600; color: #333;
+    transition: all 0.15s;
+  }
+  .time-chip.selected { border-color: #FF2442; background: #fff1f3; color: #FF2442; }
+  .time-chip.full { color: #ccc; cursor: not-allowed; background: #fafafa; }
+
   .confirm-btn {
     display: block; width: 100%;
     padding: 14px;
@@ -689,6 +737,7 @@
     color: #fff; border: none; border-radius: 14px;
     font-size: 16px; font-weight: 700; cursor: pointer;
     box-shadow: 0 4px 16px rgba(255,36,66,0.35);
+    margin-top: 4px;
   }
 
   /* SUCCESS */
@@ -851,8 +900,27 @@
   <!-- BOOKING MODAL -->
   <div class="modal-overlay" id="booking-modal" onclick="closeModal(event)">
     <div class="modal-sheet">
-      <div class="modal-title">📅 选择预约时间</div>
-      <div class="time-slots" id="time-slots"></div>
+      <div class="modal-title">📅 预约面诊</div>
+      <div class="modal-sub">选择门店和时间，顾问将提前确认</div>
+
+      <!-- 门店 -->
+      <div class="booking-section">
+        <div class="booking-section-title">📍 选择门店</div>
+        <div class="store-list" id="store-list"></div>
+      </div>
+
+      <!-- 日期 -->
+      <div class="booking-section">
+        <div class="booking-section-title">🗓 选择日期</div>
+        <div class="date-tabs" id="date-tabs"></div>
+      </div>
+
+      <!-- 时间 -->
+      <div class="booking-section">
+        <div class="booking-section-title">⏰ 选择时间段</div>
+        <div class="time-grid" id="time-grid"></div>
+      </div>
+
       <button class="confirm-btn" onclick="confirmBooking()">确认预约</button>
     </div>
   </div>
@@ -1056,13 +1124,13 @@ const FLOWS = {
     choices1: ['😊 皮肤状态（水光/抗衰）', '👁 眼部问题（眼袋/眼周）', '🌟 面部轮廓（填充/提升）'],
     afterChoice1: (c) => {
       const map = {
-        '😊 皮肤状态（水光/抗衰）': '皮肤管理是医美最受欢迎的方向！效果自然，日常维护型。\n\n你目前最困扰你的是哪个问题？',
-        '👁 眼部问题（眼袋/眼周）': '眼部是最能改变气质的部位，也是医美里性价比很高的方向。\n\n你的预算大概在什么范围？',
-        '🌟 面部轮廓（填充/提升）': '面部轮廓改善能整体提升颜值！不同部位方案差异很大。\n\n你的预算大概在什么范围？'
+        '😊 皮肤状态（水光/抗衰）': '皮肤管理是医美里最受欢迎的方向，效果自然、可持续维护 🌿\n\n你这次大概预算是多少？',
+        '👁 眼部问题（眼袋/眼周）': '眼部是最能改变气质的部位，也是性价比很高的方向 👁\n\n你这次大概预算是多少？',
+        '🌟 面部轮廓（填充/提升）': '面部轮廓改善能整体提升颜值，不同部位方案差异很大 🌟\n\n你这次大概预算是多少？'
       };
-      return map[c] || '好的，你的预算大概在什么范围？';
+      return map[c] || '好的，你这次大概预算是多少？';
     },
-    choices2: ['💰 5000以内', '💰 5000-15000', '💰 15000+'],
+    choices2: ['💰 3000以内', '💰 3000-10000', '💰 10000+'],
     afterChoice2: '明白了！根据你的诉求和预算，我整理了一份项目推荐方案 👇',
     showCard: true,
     getCard: (c1) => {
@@ -1437,7 +1505,15 @@ function getMerchantReply(text) {
     return '我们的报价完全透明，根据你的需求初步估算如下：<br><br>· 基础服务套餐：详细咨询后定<br>· 附赠免费评估/量房/面诊<br><br>建议我们先约个面对面了解，出方案后再看报价更准确，你方便什么时间？';
   }
   if (text.includes('约') || text.includes('预约') || text.includes('面诊') || text.includes('量房')) {
-    return '好的！我们这边明天和后天都有档期 👇<br><br>📅 明天 14:00 / 16:00<br>📅 后天 10:00 / 15:00<br><br>你倾向哪个时间段？确认后我帮你锁定顾问。';
+    setTimeout(() => {
+      const dmMsgs = document.getElementById('dm-messages');
+      const btnEl = document.createElement('div');
+      btnEl.style.cssText = 'margin: 0 0 8px 40px;';
+      btnEl.innerHTML = `<button class="book-btn" onclick="openBooking()" style="max-width:240px">📅 立即选择门店和时间</button>`;
+      dmMsgs.appendChild(btnEl);
+      dmMsgs.scrollTop = dmMsgs.scrollHeight;
+    }, 1400);
+    return '好的！我们多个门店都有档期，你选一个方便的位置和时间 👇';
   }
   if (text.includes('案例') || text.includes('作品') || text.includes('样板')) {
     return '当然！给你发几个最近完成的案例 📸<br><br>🖼 北欧原木风 · 95㎡ · 2023年完工<br>🖼 轻奢简约 · 120㎡ · 2024年完工<br>🖼 新中式 · 80㎡ · 2024年完工<br><br>想深入了解哪个风格的细节？';
@@ -1465,32 +1541,95 @@ function sendUserMsg() {
 }
 
 // ---- BOOKING ----
-const SLOTS = [
-  { time: '10:00', date: '明天 周二' },
-  { time: '14:00', date: '明天 周二' },
-  { time: '16:00', date: '明天 周二' },
-  { time: '10:30', date: '后天 周三' },
-  { time: '15:00', date: '后天 周三' },
-  { time: '11:00', date: '周四' },
+const STORES = {
+  study: [
+    { name: '启航留学·朝阳旗舰店', addr: '朝阳区建国路88号 · 距你2.3km', tag: '🔥 最近' },
+    { name: '启航留学·海淀中关村店', addr: '海淀区中关村大街1号 · 距你5.1km', tag: '⭐ 好评' },
+    { name: '启航留学·西城金融街店', addr: '西城区金融街35号 · 距你6.8km', tag: '🕐 最快' },
+  ],
+  deco: [
+    { name: '东易日盛·望京体验中心', addr: '朝阳区望京SOHO · 距你1.8km', tag: '🔥 最近' },
+    { name: '东易日盛·西直门旗舰店', addr: '西城区西直门外大街 · 距你4.2km', tag: '⭐ 样板间' },
+    { name: '东易日盛·通州新城店', addr: '通州区运河东大街 · 距你9.3km', tag: '🕐 当日约' },
+  ],
+  beauty: [
+    { name: '艺星医美·三里屯院区', addr: '朝阳区三里屯路19号 · 距你1.2km', tag: '🔥 最近' },
+    { name: '艺星医美·CBD旗舰院区', addr: '朝阳区建国门外大街 · 距你3.5km', tag: '⭐ 旗舰' },
+    { name: '艺星医美·中关村院区', addr: '海淀区知春路 · 距你5.7km', tag: '🕐 快速约' },
+  ]
+};
+
+const DATES = [
+  { day: '31', label: '明天', week: '周二' },
+  { day: '01', label: '后天', week: '周三' },
+  { day: '02', label: '4月2日', week: '周四' },
 ];
 
+const TIMES = ['09:00','10:00','11:00','14:00','15:00','16:00','17:00','18:00'];
+const FULL_SLOTS = ['09:00','11:00','17:00']; // 模拟已约满
+
+let selectedStore = null;
+let selectedDate = null;
+let selectedTime = null;
+
 function openBooking() {
-  const modal = document.getElementById('booking-modal');
-  const slotsEl = document.getElementById('time-slots');
-  slotsEl.innerHTML = '';
-  selectedSlot = null;
-  SLOTS.forEach((s, i) => {
+  selectedStore = null; selectedDate = null; selectedTime = null;
+  const stores = STORES[currentScene] || STORES.beauty;
+
+  // 渲染门店
+  const storeList = document.getElementById('store-list');
+  storeList.innerHTML = '';
+  stores.forEach((s, i) => {
     const el = document.createElement('div');
-    el.className = 'slot';
-    el.innerHTML = `<div class="slot-time">${s.time}</div><div class="slot-date">${s.date}</div>`;
+    el.className = 'store-item';
+    el.innerHTML = `<div class="store-dot"></div>
+      <div class="store-info">
+        <div class="store-name">${s.name}</div>
+        <div class="store-addr">📍 ${s.addr}</div>
+      </div>
+      <span class="store-tag">${s.tag}</span>`;
     el.onclick = () => {
-      document.querySelectorAll('.slot').forEach(x => x.classList.remove('selected'));
+      document.querySelectorAll('.store-item').forEach(x => x.classList.remove('selected'));
       el.classList.add('selected');
-      selectedSlot = s;
+      selectedStore = s;
     };
-    slotsEl.appendChild(el);
+    storeList.appendChild(el);
   });
-  modal.classList.add('show');
+
+  // 渲染日期
+  const dateTabs = document.getElementById('date-tabs');
+  dateTabs.innerHTML = '';
+  DATES.forEach((d, i) => {
+    const el = document.createElement('div');
+    el.className = 'date-tab';
+    el.innerHTML = `<div class="dt-day">${d.day}</div><div class="dt-label">${d.label} ${d.week}</div>`;
+    el.onclick = () => {
+      document.querySelectorAll('.date-tab').forEach(x => x.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedDate = d;
+    };
+    dateTabs.appendChild(el);
+  });
+
+  // 渲染时间
+  const timeGrid = document.getElementById('time-grid');
+  timeGrid.innerHTML = '';
+  TIMES.forEach(t => {
+    const isFull = FULL_SLOTS.includes(t);
+    const el = document.createElement('div');
+    el.className = 'time-chip' + (isFull ? ' full' : '');
+    el.textContent = isFull ? t + ' 满' : t;
+    if (!isFull) {
+      el.onclick = () => {
+        document.querySelectorAll('.time-chip').forEach(x => x.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedTime = t;
+      };
+    }
+    timeGrid.appendChild(el);
+  });
+
+  document.getElementById('booking-modal').classList.add('show');
 }
 
 function closeModal(e) {
@@ -1500,26 +1639,35 @@ function closeModal(e) {
 }
 
 function confirmBooking() {
-  if (!selectedSlot) {
-    document.querySelectorAll('.slot')[0].click();
-    selectedSlot = SLOTS[0];
-  }
+  // 默认兜底选第一个
+  if (!selectedStore) { document.querySelector('.store-item').click(); }
+  if (!selectedDate) { document.querySelector('.date-tab').click(); }
+  if (!selectedTime) { document.querySelector('.time-chip:not(.full)').click(); }
+
   document.getElementById('booking-modal').classList.remove('show');
   showSuccess();
 }
 
 function showSuccess() {
-  const s = chatFlow.successInfo;
-  const slot = selectedSlot || SLOTS[0];
+  const store = selectedStore || STORES[currentScene][0];
+  const date = selectedDate || DATES[0];
+  const time = selectedTime || '10:00';
+
+  const agentMap = { study: '王老师·英国申请专家', deco: '陈设计师·10年经验', beauty: '张医生·整形外科副主任' };
+  const noteMap = { study: '留学规划 · 60分钟', deco: '免费量房 + 初步方案', beauty: '免费面诊 · 30分钟' };
+
   document.getElementById('success-card').innerHTML = `
     <div class="sc-label">顾问</div>
-    <div class="sc-value">${s.agent}</div>
+    <div class="sc-value">${agentMap[currentScene]}</div>
+    <div class="sc-divider"></div>
+    <div class="sc-label">门店</div>
+    <div class="sc-value" style="font-size:14px">${store.name}</div>
     <div class="sc-divider"></div>
     <div class="sc-label">预约时间</div>
-    <div class="sc-value">${slot.date} ${slot.time}</div>
+    <div class="sc-value">${date.label}（${date.week}）${time}</div>
     <div class="sc-divider"></div>
     <div class="sc-label">服务内容</div>
-    <div class="sc-value">${s.note}</div>
+    <div class="sc-value">${noteMap[currentScene]}</div>
   `;
   document.getElementById('success-screen').classList.add('show');
 }
