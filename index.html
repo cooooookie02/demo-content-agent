@@ -366,7 +366,7 @@
   .chat-back { font-size: 22px; cursor: pointer; color: #111; }
   .chat-agent-info { flex: 1; }
   .chat-agent-name { font-size: 15px; font-weight: 600; color: #111; }
-  .chat-agent-status { font-size: 12px; color: #52c41a; }
+  .chat-agent-status { font-size: 12px; color: #1aaa80; }
   .chat-agent-avatar {
     width: 36px; height: 36px;
     border-radius: 50%;
@@ -551,6 +551,28 @@
     font-weight: 700;
     cursor: pointer;
   }
+
+  /* 点点链路商家列表 — 绿色 */
+  #chat-screen .merchant-highlight {
+    background: linear-gradient(135deg, #f0faf8, #e6f9f4);
+    color: #1aaa80;
+  }
+  #chat-screen .merchant-cta {
+    background: linear-gradient(135deg, #3CC8A8, #1aaa80);
+  }
+  #chat-screen .badge-top { background: #e6f9f4; color: #1aaa80; }
+  #chat-screen .tag-rush { background: #e6f9f4; color: #1aaa80; }
+
+  /* 问一问链路商家列表 — 蓝色 */
+  #wenwen-screen .merchant-highlight {
+    background: linear-gradient(135deg, #eef0ff, #f0f2ff);
+    color: #4B6BFF;
+  }
+  #wenwen-screen .merchant-cta {
+    background: linear-gradient(135deg, #6B8FFF, #4B6BFF);
+  }
+  #wenwen-screen .badge-top { background: #eef0ff; color: #4B6BFF; }
+  #wenwen-screen .tag-rush { background: #eef0ff; color: #4B6BFF; }
 
   /* TYPING INDICATOR */
   .typing { display: flex; gap: 4px; align-items: center; padding: 12px 14px; }
