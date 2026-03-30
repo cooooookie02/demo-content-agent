@@ -625,6 +625,32 @@
     display: flex; align-items: center; justify-content: center;
   }
 
+  /* UPLOAD PANEL */
+  .upload-panel {
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px;
+    margin: 0 0 8px 40px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  .upload-panel-title { font-size: 13px; font-weight: 700; color: #111; margin-bottom: 10px; }
+  .upload-items { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .upload-item {
+    border: 1.5px dashed #ddd;
+    border-radius: 10px;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fafafa;
+  }
+  .upload-item:active { border-color: #FF2442; background: #fff1f3; }
+  .upload-item.done { border-color: #52c41a; border-style: solid; background: #f6ffed; }
+  .upload-item .ui-icon { font-size: 24px; margin-bottom: 4px; }
+  .upload-item .ui-label { font-size: 11px; color: #555; }
+  .upload-item.done .ui-label { color: #52c41a; font-weight: 600; }
+  .upload-skip { text-align: center; margin-top: 10px; font-size: 12px; color: #999; cursor: pointer; text-decoration: underline; }
+
   /* quick replies */
   .quick-replies {
     display: flex;
@@ -900,7 +926,7 @@
   <!-- BOOKING MODAL -->
   <div class="modal-overlay" id="booking-modal" onclick="closeModal(event)">
     <div class="modal-sheet">
-      <div class="modal-title">📅 预约面诊</div>
+      <div class="modal-title" id="booking-modal-title">📅 预约咨询</div>
       <div class="modal-sub">选择门店和时间，顾问将提前确认</div>
 
       <!-- 门店 -->
@@ -1455,10 +1481,88 @@ function openMerchantDM(idx) {
   });
   dmMsgs.appendChild(qrEl);
 
-  // 不自动出现预约按钮，等用户和商家有一轮对话后再引导
+  // 留学场景：欢迎语后自动推出上传成绩单面板
+  if (currentScene === 'study') {
+    setTimeout(() => {
+      addUploadPanel();
+    }, 1400);
+  }
 
   document.getElementById('chat-screen').classList.remove('active');
   document.getElementById('dm-screen').classList.add('active');
+  dmMsgs.scrollTop = dmMsgs.scrollHeight;
+}
+
+function addUploadPanel() {
+  const dmMsgs = document.getElementById('dm-messages');
+  const panel = document.createElement('div');
+  panel.className = 'upload-panel';
+  panel.id = 'upload-panel';
+  panel.innerHTML = `
+    <div class="upload-panel-title">📎 上传材料，让顾问更快了解你</div>
+    <div class="upload-items">
+      <div class="upload-item" id="ul-transcript" onclick="markUploaded('ul-transcript','成绩单')">
+        <div class="ui-icon">📄</div>
+        <div class="ui-label">成绩单 / GPA</div>
+      </div>
+      <div class="upload-item" id="ul-language" onclick="markUploaded('ul-language','语言成绩')">
+        <div class="ui-icon">🗣</div>
+        <div class="ui-label">语言成绩<br>（雅思/托福）</div>
+      </div>
+      <div class="upload-item" id="ul-resume" onclick="markUploaded('ul-resume','简历')">
+        <div class="ui-icon">📋</div>
+        <div class="ui-label">个人简历 / CV</div>
+      </div>
+      <div class="upload-item" id="ul-other" onclick="markUploaded('ul-other','其他材料')">
+        <div class="ui-icon">📁</div>
+        <div class="ui-label">其他材料<br>（奖项/推荐信）</div>
+      </div>
+    </div>
+    <div class="upload-skip" onclick="skipUpload()">暂时跳过，先咨询</div>`;
+  dmMsgs.appendChild(panel);
+  dmMsgs.scrollTop = dmMsgs.scrollHeight;
+}
+
+function markUploaded(id, name) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('done');
+  el.querySelector('.ui-icon').textContent = '✅';
+  el.querySelector('.ui-label').textContent = name + ' 已上传';
+
+  // 所有都上传后自动收起并发消息
+  const allDone = ['ul-transcript','ul-language','ul-resume','ul-other']
+    .every(i => document.getElementById(i)?.classList.contains('done'));
+  if (allDone) {
+    setTimeout(() => {
+      document.getElementById('upload-panel')?.remove();
+      addDmAIMsg('收到你的全部材料！我来帮你做一个详细的背景评估，稍等一下 🔍');
+      setTimeout(() => {
+        addDmAIMsg('评估完成 ✅<br><br>你的背景综合来看：<br>📊 学术背景：中等偏强（211+GPA3.4）<br>📝 软实力：实习经历较好，建议加强科研<br>🎯 申请建议：主攻QS30-60区间，有合理冲刺空间');
+      }, 2000);
+    }, 600);
+  } else {
+    // 单个上传后发一条确认
+    const dmMsgs = document.getElementById('dm-messages');
+    const el2 = document.createElement('div');
+    el2.className = 'msg user';
+    el2.innerHTML = `<div class="msg-bubble">📎 已上传${name}</div><div class="msg-avatar user-av">😊</div>`;
+    dmMsgs.appendChild(el2);
+    dmMsgs.scrollTop = dmMsgs.scrollHeight;
+  }
+}
+
+function skipUpload() {
+  document.getElementById('upload-panel')?.remove();
+  addDmAIMsg('没关系！先聊聊你的情况，需要的时候随时可以发材料给我 😊');
+}
+
+function addDmAIMsg(text) {
+  const dmMsgs = document.getElementById('dm-messages');
+  const el = document.createElement('div');
+  el.className = 'msg ai';
+  el.innerHTML = `<div class="msg-avatar ai" style="background:${currentMerchant?.color||'#ff6b2b'}; border-radius:10px;">${currentMerchant?.emoji||'🎓'}</div><div class="msg-bubble" style="background:#fff;">${text}</div>`;
+  dmMsgs.appendChild(el);
   dmMsgs.scrollTop = dmMsgs.scrollHeight;
 }
 
@@ -1509,45 +1613,81 @@ function sendDmMsgText(text) {
 
 // dmRoundCount 已在上方声明
 
+// 根据对话内容动态决定预约标签和引导语
+function getBookingContext(text) {
+  if (currentScene === 'study') {
+    if (text.includes('文书') || text.includes('PS')) return { label: '预约文书老师线下咨询', reply: '文书打磨建议面对面来，导师可以帮你梳理经历亮点，效果比线上好很多。要约一次线下文书咨询吗？' };
+    if (text.includes('选校') || text.includes('方案') || text.includes('院校')) return { label: '预约选校一对一规划', reply: '选校策略涉及你的背景、目标、预算等多个维度，建议约个一对一深聊，帮你出一份定制清单。' };
+    if (text.includes('费用') || text.includes('价格') || text.includes('收费')) return { label: '预约免费背景评估', reply: '费用因套餐差异较大，建议先做个免费背景评估，确认适合的方案后再谈费用更准确。' };
+    if (text.includes('导师') || text.includes('谁') || text.includes('老师')) return { label: '预约导师见面沟通', reply: '我帮你匹配一位最适合你背景的导师，约个见面了解一下，没有任何强制购买压力。' };
+    return { label: '预约一对一留学规划', reply: '留学规划涉及环节多，建议约个一对一深聊，帮你理清整体节奏和优先级。' };
+  }
+  if (currentScene === 'deco') {
+    if (text.includes('报价') || text.includes('价格') || text.includes('多少钱')) return { label: '预约免费量房出报价', reply: '精确报价需要量房后才能给，我们提供免费上门量房服务，量完当天出报价单，要约吗？' };
+    if (text.includes('案例') || text.includes('样板') || text.includes('风格')) return { label: '预约参观样板间', reply: '样板间看实物效果比图片直观多了，我们有多个风格的样板间可以参观，要约个时间吗？' };
+    if (text.includes('设计') || text.includes('方案') || text.includes('设计师')) return { label: '预约设计师上门沟通', reply: '设计方案需要设计师了解你的户型和需求后才能做，约个上门沟通，免费出初稿方案。' };
+    return { label: '预约免费量房+设计方案', reply: '量房是装修第一步，我们提供免费上门量房服务，要约个时间吗？' };
+  }
+  if (currentScene === 'beauty') {
+    if (text.includes('价格') || text.includes('多少钱') || text.includes('套餐')) return { label: '预约免费面诊+方案报价', reply: '价格因个人情况和项目组合差异较大，建议先约个免费面诊，医生评估后给你出一份针对性的方案和报价。' };
+    if (text.includes('恢复') || text.includes('副作用') || text.includes('风险')) return { label: '预约医生一对一答疑', reply: '恢复期和风险这些问题医生面诊时会详细告诉你，约个一对一答疑，没有任何消费压力。' };
+    if (text.includes('资质') || text.includes('正规') || text.includes('医生')) return { label: '预约参观院区+见医生', reply: '我们欢迎你来院区实地参观，直接见医生面聊，资质证书全部公示，约一下？' };
+    return { label: '预约免费面诊', reply: '具体适不适合、做什么项目，还是要医生当面评估才准确。约个免费面诊怎么样？' };
+  }
+  return { label: '预约咨询', reply: '建议约个面对面深聊，我来帮你安排。' };
+}
+
 function getMerchantReply(text) {
   dmRoundCount++;
-  const bookMap = {
-    study: { label: '预约一对一规划咨询', reply: '我这边可以帮你做一份详细的选校清单和时间规划，建议约个一对一深聊，效果更好。要不要预约一下？' },
-    deco:  { label: '预约免费量房+设计方案', reply: '报价需要结合实际户型来算，量房完才能给你准确数字。我们提供免费上门量房服务，要约一下吗？' },
-    beauty:{ label: '预约免费面诊', reply: '具体适不适合、用什么方案，还是要医生见面评估才准确。我帮你约个免费面诊，怎么样？' }
-  };
-  const scene = bookMap[currentScene] || bookMap.beauty;
 
   let reply = '';
 
-  if (text.includes('选校') || text.includes('方案') || text.includes('院校') || text.includes('offer')) {
-    reply = '好的！根据你的背景（211，GPA 3.4），我初步整理了一份选校思路：<br><br>🎯 冲刺：UCL / 爱丁堡<br>✅ 主申：曼大 / 谢菲尔德<br>🛡 保底：利兹 / 伯明翰<br><br>文书方向建议围绕「跨学科背景 + 实习经历」来写，竞争力会更强。';
-  } else if (text.includes('文书') || text.includes('PS') || text.includes('personal')) {
-    reply = '文书是留学申请里拉开差距的关键！建议你的PS结构分三段：学术动机 → 实践经历 → 未来规划，每段都要有具体细节，不能写成流水账。<br><br>我们有专属文书导师，可以1对1帮你打磨。';
-  } else if (text.includes('费用') || text.includes('价格') || text.includes('多少钱') || text.includes('收费')) {
-    reply = '我们的服务费用根据套餐不同有差异：<br><br>· 基础选校+文书套餐：1.8万起<br>· 全程陪跑套餐：3.5万起<br>· 保录取签约：另议<br><br>相比行业均价低20-30%，且全程透明不加价。';
-  } else if (text.includes('案例') || text.includes('成功') || text.includes('样板') || text.includes('作品')) {
-    reply = '当然！给你看几个近期案例 📸<br><br>🖼 北欧原木风 · 95㎡ · 落地预算22万<br>🖼 轻奢简约 · 110㎡ · 落地预算31万<br>🖼 新中式 · 88㎡ · 落地预算19万<br><br>每个案例都有完整施工记录，想看哪个风格的细节？';
-  } else if (text.includes('导师') || text.includes('医生') || text.includes('设计师') || text.includes('谁')) {
-    reply = '我们的顾问都是行业10年以上的专家，资质可以在平台主页查到。你这边情况比较适合安排王老师，她专注英国方向8年，手上有很多类似背景的成功案例。';
+  if (currentScene === 'study') {
+    if (text.includes('选校') || text.includes('方案') || text.includes('院校') || text.includes('offer')) {
+      reply = '好的！根据你的背景（211，GPA 3.4），初步选校思路如下：<br><br>🎯 冲刺：UCL / 爱丁堡<br>✅ 主申：曼大 / 谢菲尔德<br>🛡 保底：利兹 / 伯明翰<br><br>文书建议围绕「跨学科背景 + 实习经历」打磨，竞争力会更强。';
+    } else if (text.includes('文书') || text.includes('PS')) {
+      reply = '文书是拉开差距的关键！PS建议三段式：学术动机 → 实践经历 → 未来规划，每段要有具体细节，不能写成流水账。<br><br>我们有专属文书导师，可以1对1帮你打磨初稿到终稿。';
+    } else if (text.includes('费用') || text.includes('价格') || text.includes('多少钱') || text.includes('收费')) {
+      reply = '服务套餐费用参考：<br><br>· 基础选校+文书套餐：1.8万起<br>· 全程陪跑套餐：3.5万起<br>· 保录取签约：另议<br><br>比行业均价低20-30%，全程透明不加价。';
+    } else if (text.includes('导师') || text.includes('谁') || text.includes('老师')) {
+      reply = '我们的导师都是英国名校背景，10年以上经验。你的情况比较适合王老师，专注英国方向8年，手上有大量211背景成功案例。';
+    } else {
+      reply = '留学申请涉及环节较多——选校、文书、语言、背调缺一不可。你目前最想先了解哪个方向？';
+    }
+  } else if (currentScene === 'deco') {
+    if (text.includes('报价') || text.includes('价格') || text.includes('多少钱')) {
+      reply = '精确报价需要量房后才能给，初步估算你的户型：<br><br>· 硬装：10-14万<br>· 全屋定制：6-9万<br>· 软装+家电：4-7万<br>· 合计区间：20-30万<br><br>量房后误差可控制在5%以内。';
+    } else if (text.includes('案例') || text.includes('样板') || text.includes('风格')) {
+      reply = '给你发几个近期完工案例 📸<br><br>🖼 北欧原木风 · 95㎡ · 落地22万<br>🖼 轻奢简约 · 110㎡ · 落地31万<br>🖼 新中式 · 88㎡ · 落地19万<br><br>每个都有完整施工记录和业主评价，想深入了解哪个风格？';
+    } else if (text.includes('设计') || text.includes('方案') || text.includes('设计师')) {
+      reply = '我们的设计师团队10年以上经验，你选的原木北欧风我们做了200+案例。设计方案需要先了解户型和需求，上门沟通后出初稿，免费的。';
+    } else {
+      reply = '装修最重要的是前期规划，避免后期返工。你目前最关心的是设计风格、报价还是施工质量？';
+    }
   } else {
-    reply = '收到！这个问题我来详细解答。' + (currentScene === 'study' ? '留学申请涉及的环节比较多，选校、文书、语言、背调缺一不可，建议系统规划。' : currentScene === 'deco' ? '装修最重要的是前期规划好，避免后期改动造成浪费，我们有完整的装前顾问服务。' : '医美项目的选择和机构资质都很重要，建议先面诊再决定，不要只看价格。');
+    if (text.includes('价格') || text.includes('多少钱') || text.includes('套餐')) {
+      reply = '价格因项目和个人情况差异较大，常见项目参考：<br><br>· 水光针：2000-4000元/次<br>· 热玛吉Face：18000-28000元<br>· 双眼皮（全切）：8000-15000元<br><br>面诊后医生会根据你的具体情况给出精准方案和报价。';
+    } else if (text.includes('恢复') || text.includes('副作用') || text.includes('风险')) {
+      reply = '这个问题很重要！各项目恢复期不同：<br><br>· 水光针：24-48小时<br>· 热玛吉：基本无恢复期<br>· 双眼皮：7-14天<br><br>具体风险和注意事项医生面诊时会详细告知。';
+    } else if (text.includes('资质') || text.includes('正规') || text.includes('医生')) {
+      reply = '我们所有医生均有执业医师证，耗材全部有溯源码可查。院区通过卫生部门认证，欢迎你来实地参观。';
+    } else {
+      reply = '医美选择最重要的是安全和适合自己。你目前最想改善哪个方面，我来帮你分析适合的项目？';
+    }
   }
 
-  // 第一轮对话结束后，商家主动引导预约
+  // 第一轮对话后，商家根据话题主动引导预约
   if (dmRoundCount === 1) {
+    const ctx = getBookingContext(text);
     setTimeout(() => {
       const dmMsgs = document.getElementById('dm-messages');
-      // 商家追问
       const followEl = document.createElement('div');
       followEl.className = 'msg ai';
-      followEl.innerHTML = `<div class="msg-avatar ai" style="background:${currentMerchant.color}; border-radius:10px;">${currentMerchant.emoji}</div><div class="msg-bubble" style="background:#fff;">${scene.reply}</div>`;
+      followEl.innerHTML = `<div class="msg-avatar ai" style="background:${currentMerchant.color}; border-radius:10px;">${currentMerchant.emoji}</div><div class="msg-bubble" style="background:#fff;">${ctx.reply}</div>`;
       dmMsgs.appendChild(followEl);
-
-      // 预约按钮
       const bookEl = document.createElement('div');
       bookEl.style.cssText = 'margin: 4px 0 8px 40px;';
-      bookEl.innerHTML = `<button class="book-btn" style="max-width:260px" onclick="openBooking()">📅 ${scene.label}</button>`;
+      bookEl.innerHTML = `<button class="book-btn" style="max-width:280px" onclick="openBookingWithLabel('${ctx.label}')">📅 ${ctx.label}</button>`;
       dmMsgs.appendChild(bookEl);
       dmMsgs.scrollTop = dmMsgs.scrollHeight;
     }, 1500);
@@ -1606,6 +1746,11 @@ const FULL_SLOTS = ['09:00','11:00','17:00']; // 模拟已约满
 let selectedStore = null;
 let selectedDate = null;
 let selectedTime = null;
+
+function openBookingWithLabel(label) {
+  document.getElementById('booking-modal-title').textContent = '📅 ' + label;
+  openBooking();
+}
 
 function openBooking() {
   selectedStore = null; selectedDate = null; selectedTime = null;
