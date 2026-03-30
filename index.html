@@ -1082,7 +1082,7 @@ const FLOWS = {
         ]
       };
     },
-    afterCard: '这份方案是基于你的背景初步匹配的 📋\n\n我帮你找了 3 家在英国留学方向口碑最好的机构，根据你的情况标出了各自最匹配的优势，直接点击可以进入私信咨询 👇',
+    afterCard: '这份方案是基于你的背景初步匹配的 📋\n\n下面是 3 家英国留学方向的机构，我根据你的情况标出了各自最匹配的优势，点「进入私信」可以直接和他们聊 👇',
     bookLabel: '预约一对一规划咨询'
   },
   deco: {
@@ -1118,7 +1118,7 @@ const FLOWS = {
         ]
       };
     },
-    afterCard: '以上是市场主流价格区间，实际差异较大 📋\n\n我帮你匹配了 3 家适合你预算和风格的装修公司，根据你的需求标出了各自的核心优势，点击直接进入私信 👇',
+    afterCard: '以上是市场主流价格区间，实际差异较大 📋\n\n下面是 3 家适合你的装修公司，我根据你的户型和风格偏好标出了各自优势，点「进入私信」直接沟通 👇',
     bookLabel: '预约免费量房+设计方案'
   },
   beauty: {
@@ -1157,7 +1157,7 @@ const FLOWS = {
         ]
       };
     },
-    afterCard: '以上方案仅供参考，具体适不适合还需要专业面诊 📋\n\n我帮你筛选了 3 家靠谱医美机构，根据你的诉求和预算标出了各自的核心优势，点击直接联系 👇',
+    afterCard: '以上方案仅供参考，具体适不适合还需要专业面诊 📋\n\n下面是 3 家靠谱机构，我根据你的诉求和预算标出了各自优势，点「进入私信」直接联系 👇',
     bookLabel: '预约免费面诊'
   }
 };
@@ -1410,16 +1410,7 @@ function addMerchantCards() {
   });
 
   msgs.appendChild(wrapper);
-
-  // 预约按钮
-  setTimeout(() => {
-    const bookLabel = chatFlow.bookLabel || '预约咨询';
-    const btnWrap = document.createElement('div');
-    btnWrap.style.cssText = 'margin: 4px 0 8px 0;';
-    btnWrap.innerHTML = `<button class="book-btn" onclick="openBooking()">📅 ${bookLabel}</button>`;
-    msgs.appendChild(btnWrap);
-    msgs.scrollTop = msgs.scrollHeight;
-  }, 400);
+  msgs.scrollTop = msgs.scrollHeight;
 }
 
 function openMerchantDM(idx) {
@@ -1461,6 +1452,18 @@ function openMerchantDM(idx) {
     qrEl.appendChild(btn);
   });
   dmMsgs.appendChild(qrEl);
+
+  // 自动推出预约按钮
+  setTimeout(() => {
+    const bookLabel = chatFlow ? chatFlow.bookLabel : '预约咨询';
+    const bookMap = { study: '预约一对一规划咨询', deco: '预约免费量房+设计方案', beauty: '预约免费面诊' };
+    const label = bookMap[currentScene] || bookLabel || '预约咨询';
+    const bookEl = document.createElement('div');
+    bookEl.style.cssText = 'margin: 0 0 8px 40px;';
+    bookEl.innerHTML = `<button class="book-btn" style="max-width:260px" onclick="openBooking()">📅 ${label}</button>`;
+    dmMsgs.appendChild(bookEl);
+    dmMsgs.scrollTop = dmMsgs.scrollHeight;
+  }, 1200);
 
   document.getElementById('chat-screen').classList.remove('active');
   document.getElementById('dm-screen').classList.add('active');
@@ -1517,15 +1520,7 @@ function getMerchantReply(text) {
     return '我们的报价完全透明，根据你的需求初步估算如下：<br><br>· 基础服务套餐：详细咨询后定<br>· 附赠免费评估/量房/面诊<br><br>建议我们先约个面对面了解，出方案后再看报价更准确，你方便什么时间？';
   }
   if (text.includes('约') || text.includes('预约') || text.includes('面诊') || text.includes('量房')) {
-    setTimeout(() => {
-      const dmMsgs = document.getElementById('dm-messages');
-      const btnEl = document.createElement('div');
-      btnEl.style.cssText = 'margin: 0 0 8px 40px;';
-      btnEl.innerHTML = `<button class="book-btn" onclick="openBooking()" style="max-width:240px">📅 立即选择门店和时间</button>`;
-      dmMsgs.appendChild(btnEl);
-      dmMsgs.scrollTop = dmMsgs.scrollHeight;
-    }, 1400);
-    return '好的！我们多个门店都有档期，你选一个方便的位置和时间 👇';
+    return '好的！你可以直接点上方的预约按钮选择门店和时间，我们会提前联系你确认 😊';
   }
   if (text.includes('案例') || text.includes('作品') || text.includes('样板')) {
     return '当然！给你发几个最近完成的案例 📸<br><br>🖼 北欧原木风 · 95㎡ · 2023年完工<br>🖼 轻奢简约 · 120㎡ · 2024年完工<br>🖼 新中式 · 80㎡ · 2024年完工<br><br>想深入了解哪个风格的细节？';
