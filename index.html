@@ -233,35 +233,19 @@
   .ai-bubble-avatar {
     width: 44px; height: 44px;
     border-radius: 50%;
-    background: #1DB954;
+    background: transparent;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(29,185,84,0.45);
+    box-shadow: 0 4px 14px rgba(78,210,180,0.5);
     animation: bubblePulse 2s infinite;
-    overflow: hidden;
   }
   @keyframes bubblePulse {
-    0%, 100% { box-shadow: 0 4px 12px rgba(29,185,84,0.45); }
-    50% { box-shadow: 0 4px 22px rgba(29,185,84,0.75); }
+    0%, 100% { box-shadow: 0 4px 14px rgba(78,210,180,0.5); }
+    50% { box-shadow: 0 4px 24px rgba(78,210,180,0.8); }
   }
-  /* 点点 logo —— 绿色圆形内两个白色对话泡 */
-  .diandian-logo {
-    width: 28px; height: 28px;
-    position: relative;
-  }
-  .diandian-logo .d1 {
-    position: absolute;
-    width: 18px; height: 18px;
-    background: #fff;
-    border-radius: 50% 50% 50% 4px;
-    top: 0; left: 0;
-  }
-  .diandian-logo .d2 {
-    position: absolute;
-    width: 13px; height: 13px;
-    background: rgba(255,255,255,0.75);
-    border-radius: 50% 50% 4px 50%;
-    bottom: 0; right: 0;
+  /* 点点 logo — 水滴/对话泡形，薄荷绿 */
+  .diandian-icon {
+    width: 44px; height: 44px;
   }
   .ai-bubble-text {
     background: #fff;
@@ -340,7 +324,7 @@
   .chat-agent-avatar {
     width: 36px; height: 36px;
     border-radius: 50%;
-    background: #1DB954;
+    background: transparent;
     display: flex; align-items: center; justify-content: center;
     font-size: 18px;
     flex-shrink: 0;
@@ -365,7 +349,7 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 16px;
   }
-  .msg-avatar.ai { background: #1DB954; }
+  .msg-avatar.ai { background: transparent; overflow: visible; }
   .msg-avatar.user-av { background: linear-gradient(135deg, #667eea, #764ba2); }
   .msg-bubble {
     max-width: 75%;
@@ -911,7 +895,16 @@
         <button class="ai-bubble-cta">👋 和AI顾问聊聊</button>
       </div>
       <div class="ai-bubble-avatar">
-        <div class="diandian-logo"><div class="d1"></div><div class="d2"></div></div>
+        <svg class="diandian-icon" viewBox="0 0 44 44" fill="none">
+          <path d="M22 4C13.163 4 6 11.163 6 20c0 5.48 2.73 10.32 6.9 13.3L11.5 40l7.2-3.6C20.1 36.6 21.04 36.7 22 36.7c8.837 0 16-7.163 16-16S30.837 4 22 4z" fill="#4ED8B8"/>
+          <path d="M22 4C13.163 4 6 11.163 6 20c0 5.48 2.73 10.32 6.9 13.3L11.5 40l7.2-3.6C20.1 36.6 21.04 36.7 22 36.7c8.837 0 16-7.163 16-16S30.837 4 22 4z" fill="url(#ddgrad)"/>
+          <defs>
+            <linearGradient id="ddgrad" x1="6" y1="4" x2="38" y2="40" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#6EECD4"/>
+              <stop offset="100%" stop-color="#3CC8A8"/>
+            </linearGradient>
+          </defs>
+        </svg>
       </div>
     </div>
 
@@ -935,7 +928,7 @@
     <div class="chat-header">
       <div class="chat-back" onclick="backToFeed()">‹</div>
       <div class="chat-agent-avatar" id="agent-avatar">
-        <div class="diandian-logo" style="width:22px;height:22px"><div class="d1" style="width:14px;height:14px"></div><div class="d2" style="width:10px;height:10px"></div></div>
+        <svg viewBox="0 0 44 44" fill="none" style="width:36px;height:36px"><path d="M22 4C13.163 4 6 11.163 6 20c0 5.48 2.73 10.32 6.9 13.3L11.5 40l7.2-3.6C20.1 36.6 21.04 36.7 22 36.7c8.837 0 16-7.163 16-16S30.837 4 22 4z" fill="url(#ddg2)"/><defs><linearGradient id="ddg2" x1="6" y1="4" x2="38" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6EECD4"/><stop offset="100%" stop-color="#3CC8A8"/></linearGradient></defs></svg>
       </div>
       <div class="chat-agent-info">
         <div class="chat-agent-name" id="agent-name">薯薯</div>
@@ -1298,7 +1291,7 @@ function addAIMsg(text, typing = true) {
     const typingEl = document.createElement('div');
     typingEl.className = 'msg ai';
     typingEl.id = 'typing-indicator';
-    const ddSvg = `<svg width="14" height="14" viewBox="0 0 22 22"><circle cx="11" cy="11" r="11" fill="#1DB954"/><ellipse cx="9" cy="9" rx="5.5" ry="5.5" fill="white" opacity="0.95"/><ellipse cx="14" cy="14" rx="4" ry="4" fill="white" opacity="0.7"/></svg>`;
+    const ddSvg = `<svg viewBox="0 0 44 44" fill="none" style="width:32px;height:32px"><path d="M22 4C13.163 4 6 11.163 6 20c0 5.48 2.73 10.32 6.9 13.3L11.5 40l7.2-3.6C20.1 36.6 21.04 36.7 22 36.7c8.837 0 16-7.163 16-16S30.837 4 22 4z" fill="url(#ddg3)"/><defs><linearGradient id="ddg3" x1="6" y1="4" x2="38" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6EECD4"/><stop offset="100%" stop-color="#3CC8A8"/></linearGradient></defs></svg>`;
     typingEl.innerHTML = `<div class="msg-avatar ai">${ddSvg}</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
     msgs.appendChild(typingEl);
     msgs.scrollTop = msgs.scrollHeight;
@@ -1316,7 +1309,7 @@ function appendAIBubble(text) {
   const msgs = document.getElementById('chat-messages');
   const el = document.createElement('div');
   el.className = 'msg ai';
-  const ddSvg2 = `<svg width="14" height="14" viewBox="0 0 22 22"><circle cx="11" cy="11" r="11" fill="#1DB954"/><ellipse cx="9" cy="9" rx="5.5" ry="5.5" fill="white" opacity="0.95"/><ellipse cx="14" cy="14" rx="4" ry="4" fill="white" opacity="0.7"/></svg>`;
+  const ddSvg2 = `<svg viewBox="0 0 44 44" fill="none" style="width:32px;height:32px"><path d="M22 4C13.163 4 6 11.163 6 20c0 5.48 2.73 10.32 6.9 13.3L11.5 40l7.2-3.6C20.1 36.6 21.04 36.7 22 36.7c8.837 0 16-7.163 16-16S30.837 4 22 4z" fill="url(#ddg4)"/><defs><linearGradient id="ddg4" x1="6" y1="4" x2="38" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6EECD4"/><stop offset="100%" stop-color="#3CC8A8"/></linearGradient></defs></svg>`;
   el.innerHTML = `<div class="msg-avatar ai">${ddSvg2}</div><div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div>`;
   msgs.appendChild(el);
   msgs.scrollTop = msgs.scrollHeight;
@@ -2002,51 +1995,156 @@ function sendWenwenMsg() {
   sendWenwenMsgText(text);
 }
 
+const wwSvgAvatar = `<svg viewBox="0 0 44 44" fill="none" style="width:32px;height:32px"><path d="M22 4C13.163 4 6 11.163 6 20c0 5.48 2.73 10.32 6.9 13.3L11.5 40l7.2-3.6C20.1 36.6 21.04 36.7 22 36.7c8.837 0 16-7.163 16-16S30.837 4 22 4z" fill="url(#ddg5)"/><defs><linearGradient id="ddg5" x1="6" y1="4" x2="38" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6EECD4"/><stop offset="100%" stop-color="#3CC8A8"/></linearGradient></defs></svg>`;
+
+let wwStep = 0;
+let wwChoice1 = null;
+
 function sendWenwenMsgText(text) {
   const msgs = document.getElementById('wenwen-messages');
+
+  // 用户消息
   const userEl = document.createElement('div');
   userEl.className = 'msg user';
   userEl.innerHTML = `<div class="msg-bubble">${text}</div><div class="msg-avatar user-av">😊</div>`;
   msgs.appendChild(userEl);
   msgs.scrollTop = msgs.scrollHeight;
 
-  // typing
-  const typingEl = document.createElement('div');
-  typingEl.className = 'msg ai'; typingEl.id = 'ww-typing';
-  typingEl.innerHTML = `<div class="msg-avatar ai" style="background:#4B6BFF;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 4.8L20 8l-4 4 1 5.5L12 15l-5 2.5 1-5.5-4-4 5.6-1.2z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="10" r="2" fill="#fff"/></svg></div><div class="msg-bubble" style="background:#fff;"><div class="typing"><span></span><span></span><span></span></div></div>`;
-  msgs.appendChild(typingEl);
-  msgs.scrollTop = msgs.scrollHeight;
-
+  // 问一问的第一条回复：先给一句内容回答，然后走点点一样的问诊流程
+  wwAddTyping();
   setTimeout(() => {
     document.getElementById('ww-typing')?.remove();
-    const reply = getWenwenReply(text);
-    const replyEl = document.createElement('div');
-    replyEl.className = 'msg ai';
-    replyEl.innerHTML = `<div class="msg-avatar ai" style="background:#4B6BFF;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 4.8L20 8l-4 4 1 5.5L12 15l-5 2.5 1-5.5-4-4 5.6-1.2z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="10" r="2" fill="#fff"/></svg></div><div class="msg-bubble" style="background:#fff;">${reply}</div>`;
-    msgs.appendChild(replyEl);
 
-    // 引导回到主流程
-    const guideEl = document.createElement('div');
-    guideEl.style.cssText = 'margin: 0 0 8px 40px;';
-    guideEl.innerHTML = `<button style="padding:7px 16px;border:1.5px solid #4B6BFF;border-radius:20px;font-size:12px;color:#4B6BFF;background:#fff;cursor:pointer;" onclick="closeWenwen()">📋 查看 AI 为你匹配的方案 ›</button>`;
-    msgs.appendChild(guideEl);
-    msgs.scrollTop = msgs.scrollHeight;
+    // 根据query先给一个直接回答
+    const quickAns = getWenwenQuickAnswer(text);
+    wwAddAIMsg(quickAns);
+
+    // 然后接入和点点一样的引导流程
+    setTimeout(() => {
+      wwAddAIMsg('想帮你出一份更个性化的方案 😊 先了解一下你的情况？');
+      setTimeout(() => {
+        wwAddChoices(FLOWS[SCENES[currentScene].flow].choices1, 'ww1');
+      }, 900);
+    }, 1000);
   }, 1200);
 }
 
-function getWenwenReply(text) {
-  if (text.includes('费用') || text.includes('多少钱') || text.includes('价格')) {
-    if (currentScene === 'study') return '根据小红书用户真实分享，英国硕士一年总费用大约 <strong>25-40万人民币</strong>（含学费+生活费），伦敦会再贵20%左右。具体因学校、专业、个人消费差异较大。';
-    if (currentScene === 'deco') return '根据小红书装修帖子汇总，100㎡全包装修费用参考：<br>· 经济款：15-20万<br>· 中档款：20-35万<br>· 高档款：35万+<br><br>北京上海比其他城市贵约30%。';
-    return '根据小红书医美用户反馈，热门项目参考价格：<br>· 水光针：2000-4000元/次<br>· 热玛吉：18000-28000元<br>· 双眼皮：8000-15000元';
+function getWenwenQuickAnswer(text) {
+  if (text.includes('费用') || text.includes('多少钱')) {
+    if (currentScene === 'study') return '根据小红书真实分享，英国硕士一年总费用约 <strong>25-40万</strong>（含学费+生活费），伦敦偏贵约20%。';
+    if (currentScene === 'deco') return '根据小红书装修帖，100㎡全包参考：经济款15-20万、中档20-35万、高档35万+。';
+    return '根据小红书医美用户分享：水光针2000-4000元/次，热玛吉18000-28000元，双眼皮8000-15000元。';
   }
-  if (text.includes('GPA') || text.includes('申请') || text.includes('能申')) {
-    return '根据小红书留学经验帖，211本科GPA3.5申QS50是可行的 ✅<br><br>已有大量同背景成功案例，关键在于：<br>· 文书要有差异化亮点<br>· 实习经历要和专业相关<br>· 语言成绩建议雅思7.0+';
+  if (text.includes('GPA') || text.includes('申请') || text.includes('能申')) return '211本科GPA3.5申QS50完全可行 ✅，关键在文书差异化 + 实习经历匹配专业 + 雅思7.0+。';
+  if (text.includes('区别') || text.includes('哪个')) return '热玛吉效果持久2年+但价格高；超声炮入门首选，维持6-12个月。预算充足选热玛吉，初次尝试选超声炮。';
+  if (text.includes('北欧') || text.includes('中式') || text.includes('风格')) return '北欧风清爽耐看、维护成本低；新中式更有文化底蕴但软装成本高。根据你的预算和生活习惯选择更合适。';
+  return '根据小红书上的真实内容，这个问题有大量用户分享。我来帮你结合自己的情况做个分析 👇';
+}
+
+function wwAddTyping() {
+  const msgs = document.getElementById('wenwen-messages');
+  const el = document.createElement('div');
+  el.className = 'msg ai'; el.id = 'ww-typing';
+  el.innerHTML = `<div class="msg-avatar ai">${wwSvgAvatar}</div><div class="msg-bubble" style="background:#fff;"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function wwAddAIMsg(text) {
+  const msgs = document.getElementById('wenwen-messages');
+  const el = document.createElement('div');
+  el.className = 'msg ai';
+  el.innerHTML = `<div class="msg-avatar ai">${wwSvgAvatar}</div><div class="msg-bubble" style="background:#fff;">${text.replace(/\n/g,'<br>')}</div>`;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function wwAddChoices(choices, step) {
+  const msgs = document.getElementById('wenwen-messages');
+  const row = document.createElement('div');
+  row.className = 'choice-row';
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => onWwChoice(c, step, row);
+    row.appendChild(btn);
+  });
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function onWwChoice(c, step, row) {
+  row.querySelectorAll('.choice-btn').forEach(b => { b.disabled = true; b.style.opacity = 0.5; });
+  const msgs = document.getElementById('wenwen-messages');
+  const userEl = document.createElement('div');
+  userEl.className = 'msg user';
+  userEl.innerHTML = `<div class="msg-bubble">${c}</div><div class="msg-avatar user-av">😊</div>`;
+  msgs.appendChild(userEl);
+
+  const flow = FLOWS[SCENES[currentScene].flow];
+
+  if (step === 'ww1') {
+    wwChoice1 = c;
+    wwAddTyping();
+    setTimeout(() => {
+      document.getElementById('ww-typing')?.remove();
+      wwAddAIMsg(flow.afterChoice1(c));
+      setTimeout(() => wwAddChoices(flow.choices2, 'ww2'), 900);
+    }, 800);
+  } else if (step === 'ww2') {
+    wwAddTyping();
+    setTimeout(() => {
+      document.getElementById('ww-typing')?.remove();
+      wwAddAIMsg(flow.afterChoice2);
+      // 方案卡片
+      setTimeout(() => {
+        if (flow.showCard) {
+          const card = flow.getCard(wwChoice1);
+          const cardEl = document.createElement('div');
+          cardEl.className = 'result-card';
+          let rowsHtml = card.rows.map(r => `<div class="result-row"><span class="result-row-label">${r.label}</span>${r.tag ? `<span class="result-row-tag ${r.tag}">${r.tagText}</span><span class="result-row-value" style="margin-left:6px">${r.value}</span>` : `<span class="result-row-value">${r.value}</span>`}</div>`).join('');
+          cardEl.innerHTML = `<div class="result-card-title">${card.title}</div>${rowsHtml}`;
+          msgs.appendChild(cardEl);
+        }
+        // afterCard 文字
+        setTimeout(() => {
+          wwAddAIMsg(flow.afterCard);
+          // 商家对比卡片（复用同一份）
+          setTimeout(() => {
+            const merchants = MERCHANTS[currentScene];
+            const wrapper = document.createElement('div');
+            wrapper.className = 'merchant-list';
+            merchants.forEach((m, i) => {
+              const card2 = document.createElement('div');
+              card2.className = 'merchant-card';
+              card2.innerHTML = `
+                <div class="merchant-header">
+                  <div class="merchant-avatar" style="background:${m.color}">${m.emoji}</div>
+                  <div class="merchant-info"><div class="merchant-name">${m.name}</div><div class="merchant-sub">${m.sub}</div></div>
+                  <span class="merchant-badge ${m.badge}">${m.badgeText}</span>
+                </div>
+                <div class="merchant-tags">${m.tags.map(t=>`<span class="merchant-tag">${t}</span>`).join('')}</div>
+                <div class="merchant-highlight">${m.highlight}</div>
+                <div class="merchant-footer">
+                  <div class="merchant-stats">${m.stats.map(s=>`<span>${s}</span>`).join('')}</div>
+                  <button class="merchant-cta" onclick="openMerchantDMFromWW(${i})">进入私信 ›</button>
+                </div>`;
+              wrapper.appendChild(card2);
+            });
+            msgs.appendChild(wrapper);
+            msgs.scrollTop = msgs.scrollHeight;
+          }, 800);
+        }, 1200);
+      }, 800);
+    }, 800);
   }
-  if (text.includes('区别') || text.includes('和') || text.includes('哪个')) {
-    return '根据小红书用户真实测评，综合来看：<br><br>热玛吉适合追求持久提拉效果（2年+），价格较高但一次到位；超声炮适合入门尝试，价格更亲民但效果维持时间短（6-12个月）。<br><br>预算充足选热玛吉，初次尝试选超声炮。';
-  }
-  return '根据小红书上的真实内容，我帮你整理了相关信息 📋<br><br>这个问题在小红书有大量用户分享，建议结合自己的具体情况来判断。你可以回到主页面，让 AI 根据你的情况给出个性化建议。';
+}
+
+function openMerchantDMFromWW(idx) {
+  // 关闭问一问，打开商家私信（复用现有逻辑）
+  document.getElementById('wenwen-screen').classList.remove('active');
+  openMerchantDM(idx);
 }
 
 // ---- INIT ----
