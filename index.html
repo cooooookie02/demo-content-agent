@@ -79,10 +79,31 @@
     height: 32px;
     display: flex;
     align-items: center;
-    padding: 0 12px;
-    gap: 6px;
+    padding: 0 10px;
+    gap: 4px;
     font-size: 13px;
     color: #999;
+    position: relative;
+  }
+  .search-wenwen {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: auto;
+    padding-left: 8px;
+    border-left: 1px solid #e0e0e0;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .wenwen-icon {
+    width: 16px; height: 16px;
+    flex-shrink: 0;
+  }
+  .search-wenwen-label {
+    font-size: 12px;
+    color: #4B6BFF;
+    font-weight: 600;
+    white-space: nowrap;
   }
 
   /* SCENE SWITCHER */
@@ -210,18 +231,37 @@
     pointer-events: auto;
   }
   .ai-bubble-avatar {
-    width: 40px; height: 40px;
+    width: 44px; height: 44px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #ff6b2b, #ffb347);
+    background: #1DB954;
     display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
     flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(255,36,66,0.4);
+    box-shadow: 0 4px 12px rgba(29,185,84,0.45);
     animation: bubblePulse 2s infinite;
+    overflow: hidden;
   }
   @keyframes bubblePulse {
-    0%, 100% { box-shadow: 0 4px 12px rgba(255,36,66,0.4); }
-    50% { box-shadow: 0 4px 20px rgba(255,36,66,0.7); }
+    0%, 100% { box-shadow: 0 4px 12px rgba(29,185,84,0.45); }
+    50% { box-shadow: 0 4px 22px rgba(29,185,84,0.75); }
+  }
+  /* 点点 logo —— 绿色圆形内两个白色对话泡 */
+  .diandian-logo {
+    width: 28px; height: 28px;
+    position: relative;
+  }
+  .diandian-logo .d1 {
+    position: absolute;
+    width: 18px; height: 18px;
+    background: #fff;
+    border-radius: 50% 50% 50% 4px;
+    top: 0; left: 0;
+  }
+  .diandian-logo .d2 {
+    position: absolute;
+    width: 13px; height: 13px;
+    background: rgba(255,255,255,0.75);
+    border-radius: 50% 50% 4px 50%;
+    bottom: 0; right: 0;
   }
   .ai-bubble-text {
     background: #fff;
@@ -300,7 +340,7 @@
   .chat-agent-avatar {
     width: 36px; height: 36px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #ff6b2b, #ffb347);
+    background: #1DB954;
     display: flex; align-items: center; justify-content: center;
     font-size: 18px;
     flex-shrink: 0;
@@ -325,7 +365,7 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 16px;
   }
-  .msg-avatar.ai { background: linear-gradient(135deg, #ff6b2b, #ffb347); }
+  .msg-avatar.ai { background: #1DB954; }
   .msg-avatar.user-av { background: linear-gradient(135deg, #667eea, #764ba2); }
   .msg-bubble {
     max-width: 75%;
@@ -829,7 +869,18 @@
         <div class="nav-tab active">发现</div>
         <div class="nav-tab">附近</div>
       </div>
-      <div class="search-box">🔍 搜索</div>
+      <div class="search-box" onclick="openWenwen()">
+        <span style="font-size:14px">🔍</span>
+        <span style="flex:1">搜索</span>
+        <div class="search-wenwen">
+          <svg class="wenwen-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2l2.4 4.8L20 8l-4 4 1 5.5L12 15l-5 2.5 1-5.5-4-4 5.6-1.2z" fill="#4B6BFF" opacity="0.15"/>
+            <path d="M12 2l2.4 4.8L20 8l-4 4 1 5.5L12 15l-5 2.5 1-5.5-4-4 5.6-1.2z" stroke="#4B6BFF" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="12" cy="10" r="2" fill="#4B6BFF"/>
+          </svg>
+          <span class="search-wenwen-label">问一问</span>
+        </div>
+      </div>
       <span style="font-size:22px; cursor:pointer;">🔔</span>
     </div>
 
@@ -859,7 +910,9 @@
         <div id="bubble-text">你好像在研究<strong id="bubble-topic">留学</strong>，要聊聊吗？ 😊</div>
         <button class="ai-bubble-cta">👋 和AI顾问聊聊</button>
       </div>
-      <div class="ai-bubble-avatar">🍠</div>
+      <div class="ai-bubble-avatar">
+        <div class="diandian-logo"><div class="d1"></div><div class="d2"></div></div>
+      </div>
     </div>
 
     <!-- bottom nav -->
@@ -881,7 +934,9 @@
     </div>
     <div class="chat-header">
       <div class="chat-back" onclick="backToFeed()">‹</div>
-      <div class="chat-agent-avatar" id="agent-avatar">🍠</div>
+      <div class="chat-agent-avatar" id="agent-avatar">
+        <div class="diandian-logo" style="width:22px;height:22px"><div class="d1" style="width:14px;height:14px"></div><div class="d2" style="width:10px;height:10px"></div></div>
+      </div>
       <div class="chat-agent-info">
         <div class="chat-agent-name" id="agent-name">薯薯</div>
         <div class="chat-agent-status">● 在线 · 通常秒回</div>
@@ -892,6 +947,32 @@
       <button class="upload-btn" onclick="handleUpload()">📎</button>
       <input class="chat-input" id="chat-input" placeholder="说说你的情况…" />
       <button class="chat-send" onclick="sendUserMsg()">➤</button>
+    </div>
+  </div>
+
+  <!-- 问一问 SCREEN -->
+  <div class="screen" id="wenwen-screen" style="background:#f5f5f5;">
+    <div class="status-bar">
+      <span>9:41</span><div class="notch"></div><span>●●● 5G</span>
+    </div>
+    <div class="chat-header">
+      <div class="chat-back" onclick="closeWenwen()">‹</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:#4B6BFF;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2l2.4 4.8L20 8l-4 4 1 5.5L12 15l-5 2.5 1-5.5-4-4 5.6-1.2z" fill="rgba(255,255,255,0.2)"/>
+          <path d="M12 2l2.4 4.8L20 8l-4 4 1 5.5L12 15l-5 2.5 1-5.5-4-4 5.6-1.2z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>
+          <circle cx="12" cy="10" r="2" fill="#fff"/>
+        </svg>
+      </div>
+      <div class="chat-agent-info">
+        <div class="chat-agent-name">问一问</div>
+        <div class="chat-agent-status" style="color:#4B6BFF;">● AI 智能问答</div>
+      </div>
+    </div>
+    <div class="chat-messages" id="wenwen-messages" style="padding-bottom:90px;"></div>
+    <div class="chat-input-bar">
+      <input class="chat-input" id="wenwen-input" placeholder="有问题，问一问…" />
+      <button class="chat-send" style="background:#4B6BFF;" onclick="sendWenwenMsg()">➤</button>
     </div>
   </div>
 
@@ -967,7 +1048,7 @@ const SCENES = {
   study: {
     name: '留学申请',
     topic: '留学',
-    agentName: '薯薯·留学顾问',
+    agentName: '点点·留学顾问',
     agentEmoji: '🍠',
     cards: [
       { title: '英国G5申请全攻略！拿到LSE offer的我来说说真相', tag: '英国留学', color: 'linear-gradient(135deg,#667eea,#764ba2)', user: '牛津小姐姐', likes: '2.3k', height: 'tall' },
@@ -982,7 +1063,7 @@ const SCENES = {
   deco: {
     name: '装修设计',
     topic: '装修',
-    agentName: '薯薯·装修顾问',
+    agentName: '点点·装修顾问',
     agentEmoji: '🍠',
     cards: [
       { title: '100㎡三居室北欧风全包装修，最终花了多少钱？', tag: '装修预算', color: 'linear-gradient(135deg,#ffecd2,#fcb69f)', user: '装修记录本', likes: '8.9k', height: 'tall' },
@@ -997,7 +1078,7 @@ const SCENES = {
   beauty: {
     name: '医美咨询',
     topic: '医美',
-    agentName: '薯薯·医美顾问',
+    agentName: '点点·医美顾问',
     agentEmoji: '🍠',
     cards: [
       { title: '做了热玛吉一个月后的真实变化，附前后对比', tag: '热玛吉', color: 'linear-gradient(135deg,#ff9a9e,#fecfef)', user: '素颜美丽', likes: '15k', height: 'tall' },
@@ -1076,7 +1157,7 @@ function switchScene(scene, el) {
 // ---- CHAT ----
 const FLOWS = {
   study: {
-    intro: ['你好！我是薯薯·留学顾问 🎓', '我注意到你最近在研究留学相关内容，看起来你正在认真规划这件事。', '能简单说一下你的背景吗？比如本科院校和 GPA？'],
+    intro: ['你好！我是点点·留学顾问 🎓', '我注意到你最近在研究留学相关内容，看起来你正在认真规划这件事。', '能简单说一下你的背景吗？比如本科院校和 GPA？'],
     choices1: ['985/211，GPA 3.7+', '211，GPA 3.3-3.5', '普通本科，GPA 3.0+'],
     afterChoice1: (c) => {
       const map = {
@@ -1112,7 +1193,7 @@ const FLOWS = {
     bookLabel: '预约一对一规划咨询'
   },
   deco: {
-    intro: ['嗨！我是薯薯·装修顾问 🏠', '看你在研究装修相关的内容，是准备要装修新家了吗？', '先说说你的房子情况吧——大概多少平方米？'],
+    intro: ['嗨！我是点点·装修顾问 🏠', '看你在研究装修相关的内容，是准备要装修新家了吗？', '先说说你的房子情况吧——大概多少平方米？'],
     choices1: ['60-80㎡ 小户型', '90-120㎡ 中户型', '120㎡+ 大户型'],
     afterChoice1: (c) => {
       const map = {
@@ -1148,7 +1229,7 @@ const FLOWS = {
     bookLabel: '预约免费量房+设计方案'
   },
   beauty: {
-    intro: ['你好！我是薯薯·医美顾问 ✨', '看你最近在研究医美相关内容，有在考虑做什么项目吗？', '可以告诉我你主要想改善哪个方面？'],
+    intro: ['你好！我是点点·医美顾问 ✨', '看你最近在研究医美相关内容，有在考虑做什么项目吗？', '可以告诉我你主要想改善哪个方面？'],
     choices1: ['😊 皮肤状态（水光/抗衰）', '👁 眼部问题（眼袋/眼周）', '🌟 面部轮廓（填充/提升）'],
     afterChoice1: (c) => {
       const map = {
@@ -1193,7 +1274,7 @@ let currentChoice1 = null;
 function openChat() {
   const s = SCENES[currentScene];
   document.getElementById('agent-name').textContent = s.agentName;
-  document.getElementById('agent-avatar').textContent = s.agentEmoji;
+  // agent-avatar 已是静态点点 logo，无需动态设置
   document.getElementById('chat-messages').innerHTML = '';
   chatFlow = FLOWS[s.flow];
   chatStep = 0;
@@ -1217,7 +1298,8 @@ function addAIMsg(text, typing = true) {
     const typingEl = document.createElement('div');
     typingEl.className = 'msg ai';
     typingEl.id = 'typing-indicator';
-    typingEl.innerHTML = `<div class="msg-avatar ai">${SCENES[currentScene].agentEmoji}</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+    const ddSvg = `<svg width="14" height="14" viewBox="0 0 22 22"><circle cx="11" cy="11" r="11" fill="#1DB954"/><ellipse cx="9" cy="9" rx="5.5" ry="5.5" fill="white" opacity="0.95"/><ellipse cx="14" cy="14" rx="4" ry="4" fill="white" opacity="0.7"/></svg>`;
+    typingEl.innerHTML = `<div class="msg-avatar ai">${ddSvg}</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
     msgs.appendChild(typingEl);
     msgs.scrollTop = msgs.scrollHeight;
     setTimeout(() => {
@@ -1234,7 +1316,8 @@ function appendAIBubble(text) {
   const msgs = document.getElementById('chat-messages');
   const el = document.createElement('div');
   el.className = 'msg ai';
-  el.innerHTML = `<div class="msg-avatar ai">${SCENES[currentScene].agentEmoji}</div><div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div>`;
+  const ddSvg2 = `<svg width="14" height="14" viewBox="0 0 22 22"><circle cx="11" cy="11" r="11" fill="#1DB954"/><ellipse cx="9" cy="9" rx="5.5" ry="5.5" fill="white" opacity="0.95"/><ellipse cx="14" cy="14" rx="4" ry="4" fill="white" opacity="0.7"/></svg>`;
+  el.innerHTML = `<div class="msg-avatar ai">${ddSvg2}</div><div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div>`;
   msgs.appendChild(el);
   msgs.scrollTop = msgs.scrollHeight;
 }
@@ -1861,6 +1944,109 @@ function backToFeed() {
   document.getElementById('intent-fill').style.width = '0%';
   document.getElementById('browse-count').textContent = '已浏览 0 篇';
   document.getElementById('ai-bubble').classList.remove('show');
+}
+
+// ---- 问一问 ----
+function openWenwen() {
+  const msgs = document.getElementById('wenwen-messages');
+  msgs.innerHTML = '';
+
+  // 问一问欢迎语
+  const greet = document.createElement('div');
+  greet.className = 'msg ai';
+  greet.innerHTML = `
+    <div class="msg-avatar ai" style="background:#4B6BFF;font-size:12px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2l2.4 4.8L20 8l-4 4 1 5.5L12 15l-5 2.5 1-5.5-4-4 5.6-1.2z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>
+        <circle cx="12" cy="10" r="2" fill="#fff"/>
+      </svg>
+    </div>
+    <div class="msg-bubble" style="background:#fff;">
+      你好！我是<strong style="color:#4B6BFF">问一问</strong>，小红书 AI 助手 🌟<br><br>
+      你可以问我任何问题，我会结合小红书的真实内容帮你找答案。
+    </div>`;
+  msgs.appendChild(greet);
+
+  // 推荐问题（根据当前浏览场景）
+  const suggestions = {
+    study: ['英国留学一年费用大概多少？', '211本科GPA3.5能申QS50吗？', '雅思几分够申英国硕士？'],
+    deco:  ['100㎡装修全包大概多少钱？', '北欧风和新中式哪个更耐看？', '装修踩坑最多的地方是哪里？'],
+    beauty:['热玛吉和超声炮有什么区别？', '水光针多久打一次合适？', '双眼皮埋线和全切选哪个？']
+  };
+  const qs = suggestions[currentScene] || suggestions.study;
+  const qRow = document.createElement('div');
+  qRow.style.cssText = 'margin: 0 0 8px 40px; display:flex; flex-direction:column; gap:6px;';
+  qs.forEach(q => {
+    const btn = document.createElement('button');
+    btn.style.cssText = 'text-align:left; padding:8px 12px; background:#fff; border:1px solid #e8e8ff; border-radius:10px; font-size:13px; color:#333; cursor:pointer; display:flex; justify-content:space-between; align-items:center;';
+    btn.innerHTML = `${q} <span style="color:#4B6BFF;font-size:16px;">›</span>`;
+    btn.onclick = () => { qRow.remove(); sendWenwenMsgText(q); };
+    qRow.appendChild(btn);
+  });
+  msgs.appendChild(qRow);
+
+  document.getElementById('feed-screen').classList.remove('active');
+  document.getElementById('wenwen-screen').classList.add('active');
+}
+
+function closeWenwen() {
+  document.getElementById('wenwen-screen').classList.remove('active');
+  document.getElementById('feed-screen').classList.add('active');
+}
+
+function sendWenwenMsg() {
+  const input = document.getElementById('wenwen-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  sendWenwenMsgText(text);
+}
+
+function sendWenwenMsgText(text) {
+  const msgs = document.getElementById('wenwen-messages');
+  const userEl = document.createElement('div');
+  userEl.className = 'msg user';
+  userEl.innerHTML = `<div class="msg-bubble">${text}</div><div class="msg-avatar user-av">😊</div>`;
+  msgs.appendChild(userEl);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // typing
+  const typingEl = document.createElement('div');
+  typingEl.className = 'msg ai'; typingEl.id = 'ww-typing';
+  typingEl.innerHTML = `<div class="msg-avatar ai" style="background:#4B6BFF;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 4.8L20 8l-4 4 1 5.5L12 15l-5 2.5 1-5.5-4-4 5.6-1.2z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="10" r="2" fill="#fff"/></svg></div><div class="msg-bubble" style="background:#fff;"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  msgs.appendChild(typingEl);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  setTimeout(() => {
+    document.getElementById('ww-typing')?.remove();
+    const reply = getWenwenReply(text);
+    const replyEl = document.createElement('div');
+    replyEl.className = 'msg ai';
+    replyEl.innerHTML = `<div class="msg-avatar ai" style="background:#4B6BFF;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 4.8L20 8l-4 4 1 5.5L12 15l-5 2.5 1-5.5-4-4 5.6-1.2z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="10" r="2" fill="#fff"/></svg></div><div class="msg-bubble" style="background:#fff;">${reply}</div>`;
+    msgs.appendChild(replyEl);
+
+    // 引导回到主流程
+    const guideEl = document.createElement('div');
+    guideEl.style.cssText = 'margin: 0 0 8px 40px;';
+    guideEl.innerHTML = `<button style="padding:7px 16px;border:1.5px solid #4B6BFF;border-radius:20px;font-size:12px;color:#4B6BFF;background:#fff;cursor:pointer;" onclick="closeWenwen()">📋 查看 AI 为你匹配的方案 ›</button>`;
+    msgs.appendChild(guideEl);
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 1200);
+}
+
+function getWenwenReply(text) {
+  if (text.includes('费用') || text.includes('多少钱') || text.includes('价格')) {
+    if (currentScene === 'study') return '根据小红书用户真实分享，英国硕士一年总费用大约 <strong>25-40万人民币</strong>（含学费+生活费），伦敦会再贵20%左右。具体因学校、专业、个人消费差异较大。';
+    if (currentScene === 'deco') return '根据小红书装修帖子汇总，100㎡全包装修费用参考：<br>· 经济款：15-20万<br>· 中档款：20-35万<br>· 高档款：35万+<br><br>北京上海比其他城市贵约30%。';
+    return '根据小红书医美用户反馈，热门项目参考价格：<br>· 水光针：2000-4000元/次<br>· 热玛吉：18000-28000元<br>· 双眼皮：8000-15000元';
+  }
+  if (text.includes('GPA') || text.includes('申请') || text.includes('能申')) {
+    return '根据小红书留学经验帖，211本科GPA3.5申QS50是可行的 ✅<br><br>已有大量同背景成功案例，关键在于：<br>· 文书要有差异化亮点<br>· 实习经历要和专业相关<br>· 语言成绩建议雅思7.0+';
+  }
+  if (text.includes('区别') || text.includes('和') || text.includes('哪个')) {
+    return '根据小红书用户真实测评，综合来看：<br><br>热玛吉适合追求持久提拉效果（2年+），价格较高但一次到位；超声炮适合入门尝试，价格更亲民但效果维持时间短（6-12个月）。<br><br>预算充足选热玛吉，初次尝试选超声炮。';
+  }
+  return '根据小红书上的真实内容，我帮你整理了相关信息 📋<br><br>这个问题在小红书有大量用户分享，建议结合自己的具体情况来判断。你可以回到主页面，让 AI 根据你的情况给出个性化建议。';
 }
 
 // ---- INIT ----
