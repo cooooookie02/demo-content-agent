@@ -304,11 +304,11 @@
     line-height: 1.5;
     cursor: pointer;
   }
-  .ai-bubble-text strong { color: #FF2442; }
+  .ai-bubble-text strong { color: #1aaa80; }
   .ai-bubble-cta {
     display: block;
     margin-top: 6px;
-    background: #FF2442;
+    background: linear-gradient(135deg, #3CC8A8, #1aaa80);
     color: #fff;
     border: none;
     border-radius: 12px;
@@ -406,21 +406,24 @@
     color: #111;
   }
   .msg.ai .msg-bubble { background: #fff; border-radius: 4px 18px 18px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-  .msg.user .msg-bubble { background: #FF2442; color: #fff; border-radius: 18px 4px 18px 18px; }
+  /* 点点对话：绿色用户气泡 */
+  #chat-screen .msg.user .msg-bubble { background: linear-gradient(135deg, #3CC8A8, #1aaa80); color: #fff; border-radius: 18px 4px 18px 18px; }
+  /* 商家私信：红色用户气泡 */
+  #dm-screen .msg.user .msg-bubble { background: #FF2442; color: #fff; border-radius: 18px 4px 18px 18px; }
 
   /* CHOICE BUTTONS */
   .choice-row { display: flex; flex-wrap: wrap; gap: 8px; margin: -8px 0 8px 40px; }
   .choice-btn {
     padding: 7px 14px;
-    border: 1.5px solid #FF2442;
+    border: 1.5px solid #1aaa80;
     border-radius: 20px;
     font-size: 13px;
-    color: #FF2442;
+    color: #1aaa80;
     background: #fff;
     cursor: pointer;
     transition: all 0.15s;
   }
-  .choice-btn:active, .choice-btn.selected { background: #FF2442; color: #fff; }
+  .choice-btn:active, .choice-btn.selected { background: #1aaa80; color: #fff; }
 
   /* RESULT CARD */
   .result-card {
@@ -465,7 +468,7 @@
     width: 100%;
     margin-top: 12px;
     padding: 12px;
-    background: linear-gradient(135deg, #FF2442, #ff6b81);
+    background: linear-gradient(135deg, #3CC8A8, #1aaa80);
     color: #fff;
     border: none;
     border-radius: 12px;
@@ -473,7 +476,7 @@
     font-weight: 700;
     cursor: pointer;
     text-align: center;
-    box-shadow: 0 4px 12px rgba(255,36,66,0.35);
+    box-shadow: 0 4px 12px rgba(26,170,128,0.35);
     transition: opacity 0.15s;
   }
   .book-btn:active { opacity: 0.85; }
@@ -559,7 +562,7 @@
   }
   .typing span:nth-child(2) { animation-delay: 0.2s; }
   .typing span:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); background: #FF2442; } }
+  @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); background: #1aaa80; } }
 
   .chat-input-bar {
     position: absolute;
@@ -584,7 +587,7 @@
   }
   .chat-send {
     width: 36px; height: 36px;
-    background: #FF2442;
+    background: linear-gradient(135deg, #3CC8A8, #1aaa80);
     border: none;
     border-radius: 50%;
     color: #fff;
@@ -653,7 +656,7 @@
     font-size: 14px; color: #333; line-height: 1.7;
   }
   .ww-article-content li strong { color: #111; }
-  .ww-article-content .highlight { color: #FF2442; font-weight: 700; }
+  .ww-article-content .highlight { color: #4B6BFF; font-weight: 700; }
   .ww-typing-bar {
     display: flex; align-items: center; gap: 8px;
     padding: 12px 0; color: #999; font-size: 13px;
@@ -867,7 +870,7 @@
     transition: all 0.15s;
     display: flex; align-items: center; gap: 10px;
   }
-  .store-item.selected { border-color: #FF2442; background: #fff8f9; }
+  .store-item.selected { border-color: #1aaa80; background: #f0faf8; }
   .store-dot {
     width: 18px; height: 18px;
     border-radius: 50%;
@@ -876,7 +879,7 @@
     display: flex; align-items: center; justify-content: center;
     transition: all 0.15s;
   }
-  .store-item.selected .store-dot { border-color: #FF2442; background: #FF2442; }
+  .store-item.selected .store-dot { border-color: #1aaa80; background: #1aaa80; }
   .store-item.selected .store-dot::after { content: ''; width: 6px; height: 6px; background: #fff; border-radius: 50%; display: block; }
   .store-info { flex: 1; }
   .store-name { font-size: 14px; font-weight: 600; color: #111; }
@@ -891,10 +894,10 @@
     border: 2px solid transparent; cursor: pointer;
     font-size: 12px; color: #555; transition: all 0.15s;
   }
-  .date-tab.selected { border-color: #FF2442; color: #FF2442; font-weight: 700; background: #fff8f9; }
+  .date-tab.selected { border-color: #1aaa80; color: #1aaa80; font-weight: 700; background: #f0faf8; }
   .date-tab .dt-day { font-size: 15px; font-weight: 700; }
   .date-tab .dt-label { font-size: 10px; color: #999; margin-top: 1px; }
-  .date-tab.selected .dt-label { color: #FF2442; }
+  .date-tab.selected .dt-label { color: #1aaa80; }
 
   .time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
   .time-chip {
@@ -904,7 +907,7 @@
     font-size: 13px; font-weight: 600; color: #333;
     transition: all 0.15s;
   }
-  .time-chip.selected { border-color: #FF2442; background: #fff1f3; color: #FF2442; }
+  .time-chip.selected { border-color: #1aaa80; background: #f0faf8; color: #1aaa80; }
   .time-chip.full { color: #ccc; cursor: not-allowed; background: #fafafa; }
 
   .confirm-btn {
