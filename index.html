@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>内容即入口 · AI决策Agent Demo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { background: #f0f0f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, 'PingFang SC', sans-serif; }
+
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: #fff;
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.3);
+  }
+
+  /* STATUS BAR */
+  .status-bar {
+    height: 44px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    font-size: 12px;
+    font-weight: 600;
+    position: relative;
+    z-index: 100;
+  }
+  .status-bar .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 34px;
+    background: #000;
+    border-radius: 0 0 20px 20px;
+  }
+
+  /* SCREENS */
+  .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* ===== FEED SCREEN ===== */
+  #feed-screen { background: #fff; }
+
+  .top-nav {
+    height: 88px;
+    padding-top: 44px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    padding-left: 16px;
+    padding-right: 16px;
+    gap: 12px;
+    border-bottom: 1px solid #f5f5f5;
+    flex-shrink: 0;
+  }
+  .nav-tabs { display: flex; gap: 16px; flex: 1; }
+  .nav-tab {
+    font-size: 15px;
+    color: #999;
+    cursor: pointer;
+    padding-bottom: 2px;
+    transition: all 0.2s;
+  }
+  .nav-tab.active {
+    color: #111;
+    font-weight: 700;
+    border-bottom: 2px solid #FF2442;
+  }
+  .search-box {
+    flex: 2;
+    background: #f5f5f5;
+    border-radius: 20px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 6px;
+    font-size: 13px;
+    color: #999;
+  }
+
+  /* SCENE SWITCHER */
+  .scene-tabs {
+    display: flex;
+    padding: 10px 16px 0;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .scene-tab {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1.5px solid #eee;
+    color: #666;
+    transition: all 0.2s;
+    background: #fff;
+  }
+  .scene-tab.active {
+    background: #FF2442;
+    color: #fff;
+    border-color: #FF2442;
+    font-weight: 600;
+  }
+
+  /* PROGRESS BAR */
+  .intent-bar {
+    margin: 8px 16px;
+    flex-shrink: 0;
+  }
+  .intent-bar-label {
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .intent-bar-label span { color: #FF2442; font-weight: 600; }
+  .intent-bar-track {
+    height: 4px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .intent-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #FF2442, #ff6b81);
+    border-radius: 4px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+
+  /* WATERFALL */
+  .feed-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .feed-scroll::-webkit-scrollbar { display: none; }
+  .waterfall {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .card {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    animation: cardIn 0.3s ease forwards;
+    opacity: 0;
+  }
+  .card:active { transform: scale(0.97); }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .card-img {
+    width: 100%;
+    aspect-ratio: 3/4;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-img-inner {
+    width: 100%; height: 100%;
+    display: flex; align-items: flex-end;
+    padding: 8px;
+  }
+  .card-tag {
+    background: rgba(0,0,0,0.45);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+  }
+  .card-body { padding: 8px; }
+  .card-title { font-size: 13px; color: #111; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+  .card-avatar { width: 20px; height: 20px; border-radius: 50%; margin-right: 6px; flex-shrink: 0; }
+  .card-user { font-size: 11px; color: #999; display: flex; align-items: center; flex: 1; overflow: hidden; }
+  .card-user-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .card-likes { font-size: 11px; color: #999; display: flex; align-items: center; gap: 3px; }
+
+  /* BUBBLE */
+  .ai-bubble {
+    position: absolute;
+    bottom: 100px;
+    right: 16px;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    z-index: 200;
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .ai-bubble.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  .ai-bubble-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FF2442, #ff6b81);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(255,36,66,0.4);
+    animation: bubblePulse 2s infinite;
+  }
+  @keyframes bubblePulse {
+    0%, 100% { box-shadow: 0 4px 12px rgba(255,36,66,0.4); }
+    50% { box-shadow: 0 4px 20px rgba(255,36,66,0.7); }
+  }
+  .ai-bubble-text {
+    background: #fff;
+    border-radius: 18px 18px 4px 18px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #111;
+    max-width: 200px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    line-height: 1.5;
+    cursor: pointer;
+  }
+  .ai-bubble-text strong { color: #FF2442; }
+  .ai-bubble-cta {
+    display: block;
+    margin-top: 6px;
+    background: #FF2442;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    height: 83px;
+    background: #fff;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 10px;
+    flex-shrink: 0;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+  }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+  .nav-item .icon { font-size: 22px; }
+  .nav-item .label { font-size: 10px; color: #999; }
+  .nav-item.active .label { color: #FF2442; }
+  .nav-publish {
+    width: 44px; height: 28px;
+    background: linear-gradient(135deg, #FF2442, #ff6b81);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(255,36,66,0.4);
+  }
+  .nav-publish span { font-size: 20px; color: #fff; line-height: 1; }
+
+  /* ===== CHAT SCREEN ===== */
+  #chat-screen { background: #f5f5f5; }
+
+  .chat-header {
+    height: 88px;
+    padding-top: 44px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    padding-left: 16px;
+    padding-right: 16px;
+    gap: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    flex-shrink: 0;
+  }
+  .chat-back { font-size: 22px; cursor: pointer; color: #111; }
+  .chat-agent-info { flex: 1; }
+  .chat-agent-name { font-size: 15px; font-weight: 600; color: #111; }
+  .chat-agent-status { font-size: 12px; color: #52c41a; }
+  .chat-agent-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FF2442, #ff6b81);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    padding-bottom: 100px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .chat-messages::-webkit-scrollbar { display: none; }
+
+  .msg { display: flex; gap: 8px; margin-bottom: 16px; animation: msgIn 0.3s ease; }
+  @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .msg.user { flex-direction: row-reverse; }
+  .msg-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .msg-avatar.ai { background: linear-gradient(135deg, #FF2442, #ff6b81); }
+  .msg-avatar.user-av { background: linear-gradient(135deg, #667eea, #764ba2); }
+  .msg-bubble {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #111;
+  }
+  .msg.ai .msg-bubble { background: #fff; border-radius: 4px 18px 18px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .msg.user .msg-bubble { background: #FF2442; color: #fff; border-radius: 18px 4px 18px 18px; }
+
+  /* CHOICE BUTTONS */
+  .choice-row { display: flex; flex-wrap: wrap; gap: 8px; margin: -8px 0 8px 40px; }
+  .choice-btn {
+    padding: 7px 14px;
+    border: 1.5px solid #FF2442;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #FF2442;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .choice-btn:active, .choice-btn.selected { background: #FF2442; color: #fff; }
+
+  /* RESULT CARD */
+  .result-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px;
+    margin: -8px 0 8px 40px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  .result-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 13px;
+  }
+  .result-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .result-row-label { color: #666; }
+  .result-row-value { color: #111; font-weight: 600; }
+  .result-row-tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .tag-rush { background: #fff1f0; color: #FF2442; }
+  .tag-stable { background: #f6ffed; color: #52c41a; }
+  .tag-safe { background: #fffbe6; color: #fa8c16; }
+
+  .book-btn {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    background: linear-gradient(135deg, #FF2442, #ff6b81);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(255,36,66,0.35);
+    transition: opacity 0.15s;
+  }
+  .book-btn:active { opacity: 0.85; }
+
+  /* MERCHANT CARDS */
+  .merchant-list { margin: -8px 0 8px 0; display: flex; flex-direction: column; gap: 10px; }
+  .merchant-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    animation: cardIn 0.3s ease forwards;
+    opacity: 0;
+  }
+  .merchant-card:nth-child(1) { animation-delay: 0.05s; }
+  .merchant-card:nth-child(2) { animation-delay: 0.15s; }
+  .merchant-card:nth-child(3) { animation-delay: 0.25s; }
+  .merchant-card:active { border-color: #FF2442; transform: scale(0.98); }
+  .merchant-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .merchant-avatar {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .merchant-info { flex: 1; }
+  .merchant-name { font-size: 14px; font-weight: 700; color: #111; }
+  .merchant-sub { font-size: 11px; color: #999; margin-top: 2px; }
+  .merchant-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .badge-top { background: #fff1f0; color: #FF2442; }
+  .badge-good { background: #f6ffed; color: #52c41a; }
+  .badge-value { background: #fffbe6; color: #fa8c16; }
+  .merchant-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .merchant-tag {
+    font-size: 11px;
+    background: #f5f5f5;
+    color: #555;
+    padding: 3px 8px;
+    border-radius: 8px;
+  }
+  .merchant-highlight {
+    background: linear-gradient(135deg, #fff1f3, #fff8f9);
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 12px;
+    color: #FF2442;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .merchant-footer { display: flex; align-items: center; justify-content: space-between; }
+  .merchant-stats { font-size: 11px; color: #999; display: flex; gap: 10px; }
+  .merchant-cta {
+    padding: 7px 16px;
+    background: #FF2442;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* TYPING INDICATOR */
+  .typing { display: flex; gap: 4px; align-items: center; padding: 12px 14px; }
+  .typing span {
+    width: 7px; height: 7px;
+    background: #ccc;
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); background: #FF2442; } }
+
+  .chat-input-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: #fff;
+    border-top: 1px solid #f0f0f0;
+    padding: 10px 16px 30px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    z-index: 50;
+  }
+  .chat-input {
+    flex: 1;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 20px;
+    padding: 9px 14px;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+  }
+  .chat-send {
+    width: 36px; height: 36px;
+    background: #FF2442;
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .upload-btn {
+    width: 36px; height: 36px;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* MERCHANT DM SCREEN */
+  #dm-screen { background: #f5f5f5; }
+  .dm-header {
+    height: 88px;
+    padding-top: 44px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    padding-top: 44px;
+    gap: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    flex-shrink: 0;
+  }
+  .dm-back { font-size: 22px; cursor: pointer; color: #111; }
+  .dm-merchant-avatar {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .dm-merchant-info { flex: 1; }
+  .dm-merchant-name { font-size: 15px; font-weight: 700; color: #111; }
+  .dm-merchant-status { font-size: 11px; color: #52c41a; }
+  .dm-more { font-size: 22px; color: #999; cursor: pointer; }
+
+  .dm-notice {
+    margin: 12px 16px;
+    background: #fffbe6;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 11px;
+    color: #8a6d00;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .dm-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 16px;
+    padding-bottom: 90px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .dm-messages::-webkit-scrollbar { display: none; }
+
+  .dm-input-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: #fff;
+    border-top: 1px solid #f0f0f0;
+    padding: 10px 16px 30px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    z-index: 50;
+  }
+  .dm-input {
+    flex: 1;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 20px;
+    padding: 9px 14px;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+  }
+  .dm-send {
+    width: 36px; height: 36px;
+    background: #FF2442;
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dm-tools { display: flex; gap: 8px; }
+  .dm-tool-btn {
+    width: 32px; height: 32px;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* quick replies */
+  .quick-replies {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 0 0 10px 0;
+    flex-shrink: 0;
+    -webkit-overflow-scrolling: touch;
+  }
+  .quick-replies::-webkit-scrollbar { display: none; }
+  .quick-reply {
+    white-space: nowrap;
+    padding: 6px 14px;
+    border: 1.5px solid #FF2442;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #FF2442;
+    background: #fff;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .quick-reply:active { background: #FF2442; color: #fff; }
+
+  /* BOOKING MODAL */
+  .modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300;
+    display: none;
+    align-items: flex-end;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-sheet {
+    width: 100%;
+    background: #fff;
+    border-radius: 24px 24px 0 0;
+    padding: 20px 20px 40px;
+    animation: sheetUp 0.35s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-title { font-size: 17px; font-weight: 700; text-align: center; margin-bottom: 20px; }
+  .time-slots { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+  .slot {
+    padding: 10px 6px;
+    border: 1.5px solid #eee;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 12px;
+    color: #555;
+    transition: all 0.15s;
+  }
+  .slot.selected { border-color: #FF2442; background: #fff1f3; color: #FF2442; font-weight: 600; }
+  .slot .slot-time { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .slot .slot-date { font-size: 11px; color: #999; }
+  .slot.selected .slot-date { color: #FF2442; }
+  .confirm-btn {
+    display: block; width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #FF2442, #ff6b81);
+    color: #fff; border: none; border-radius: 14px;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(255,36,66,0.35);
+  }
+
+  /* SUCCESS */
+  .success-screen {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    z-index: 400;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    animation: fadeIn 0.3s ease;
+  }
+  .success-screen.show { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .success-icon { font-size: 64px; animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+  .success-title { font-size: 22px; font-weight: 700; color: #111; }
+  .success-sub { font-size: 14px; color: #999; text-align: center; line-height: 1.6; }
+  .success-card {
+    background: linear-gradient(135deg, #FF2442, #ff6b81);
+    border-radius: 20px;
+    padding: 20px 28px;
+    color: #fff;
+    text-align: center;
+    width: 80%;
+    box-shadow: 0 8px 24px rgba(255,36,66,0.35);
+  }
+  .success-card .sc-label { font-size: 12px; opacity: 0.85; margin-bottom: 4px; }
+  .success-card .sc-value { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+  .success-card .sc-divider { height: 1px; background: rgba(255,255,255,0.3); margin: 12px 0; }
+  .back-home {
+    margin-top: 8px;
+    padding: 12px 32px;
+    border: 2px solid #FF2442;
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #FF2442;
+    background: #fff;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- FEED SCREEN -->
+  <div class="screen active" id="feed-screen">
+    <!-- status -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="notch"></div>
+      <span>●●● 5G</span>
+    </div>
+    <!-- top nav -->
+    <div class="top-nav">
+      <div class="nav-tabs">
+        <div class="nav-tab">关注</div>
+        <div class="nav-tab active">发现</div>
+        <div class="nav-tab">附近</div>
+      </div>
+      <div class="search-box">🔍 搜索</div>
+      <span style="font-size:22px; cursor:pointer;">🔔</span>
+    </div>
+
+    <!-- scene tabs -->
+    <div class="scene-tabs">
+      <div class="scene-tab active" onclick="switchScene('study',this)">🎓 留学申请</div>
+      <div class="scene-tab" onclick="switchScene('deco',this)">🏠 装修设计</div>
+      <div class="scene-tab" onclick="switchScene('beauty',this)">✨ 医美咨询</div>
+    </div>
+
+    <!-- intent progress -->
+    <div class="intent-bar">
+      <div class="intent-bar-label">
+        <span id="browse-count">已浏览 0 篇</span>相关内容 · AI 意图识别中
+      </div>
+      <div class="intent-bar-track"><div class="intent-bar-fill" id="intent-fill"></div></div>
+    </div>
+
+    <!-- waterfall feed -->
+    <div class="feed-scroll">
+      <div class="waterfall" id="waterfall"></div>
+    </div>
+
+    <!-- ai bubble -->
+    <div class="ai-bubble" id="ai-bubble" onclick="openChat()">
+      <div class="ai-bubble-text">
+        <div id="bubble-text">你好像在研究<strong id="bubble-topic">留学</strong>，要聊聊吗？ 😊</div>
+        <button class="ai-bubble-cta">👋 和AI顾问聊聊</button>
+      </div>
+      <div class="ai-bubble-avatar">🤖</div>
+    </div>
+
+    <!-- bottom nav -->
+    <div class="bottom-nav">
+      <div class="nav-item active"><div class="icon">🏠</div><div class="label">首页</div></div>
+      <div class="nav-item"><div class="icon">🔍</div><div class="label">探索</div></div>
+      <div class="nav-item"><div class="nav-publish"><span>＋</span></div><div class="label" style="margin-top:2px">发布</div></div>
+      <div class="nav-item"><div class="icon">💬</div><div class="label">消息</div></div>
+      <div class="nav-item"><div class="icon">👤</div><div class="label">我</div></div>
+    </div>
+  </div>
+
+  <!-- CHAT SCREEN -->
+  <div class="screen" id="chat-screen">
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="notch"></div>
+      <span>●●● 5G</span>
+    </div>
+    <div class="chat-header">
+      <div class="chat-back" onclick="backToFeed()">‹</div>
+      <div class="chat-agent-avatar" id="agent-avatar">🤖</div>
+      <div class="chat-agent-info">
+        <div class="chat-agent-name" id="agent-name">AI留学顾问</div>
+        <div class="chat-agent-status">● 在线 · 通常秒回</div>
+      </div>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input-bar">
+      <button class="upload-btn" onclick="handleUpload()">📎</button>
+      <input class="chat-input" id="chat-input" placeholder="说说你的情况…" />
+      <button class="chat-send" onclick="sendUserMsg()">➤</button>
+    </div>
+  </div>
+
+  <!-- DM SCREEN -->
+  <div class="screen" id="dm-screen">
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="notch"></div>
+      <span>●●● 5G</span>
+    </div>
+    <div class="dm-header">
+      <div class="dm-back" onclick="backToChat()">‹</div>
+      <div class="dm-merchant-avatar" id="dm-avatar">🏫</div>
+      <div class="dm-merchant-info">
+        <div class="dm-merchant-name" id="dm-name">商家名称</div>
+        <div class="dm-merchant-status">● 在线 · 平均3分钟回复</div>
+      </div>
+      <div class="dm-more">⋯</div>
+    </div>
+    <div class="dm-notice">📋 AI已将你的需求摘要发送给商家，可直接开始咨询</div>
+    <div class="dm-messages" id="dm-messages"></div>
+    <div class="dm-input-bar">
+      <div class="dm-tools">
+        <button class="dm-tool-btn">📎</button>
+        <button class="dm-tool-btn">📷</button>
+      </div>
+      <input class="dm-input" id="dm-input" placeholder="发消息…" />
+      <button class="dm-send" onclick="sendDmMsg()">➤</button>
+    </div>
+  </div>
+
+  <!-- BOOKING MODAL -->
+  <div class="modal-overlay" id="booking-modal" onclick="closeModal(event)">
+    <div class="modal-sheet">
+      <div class="modal-title">📅 选择预约时间</div>
+      <div class="time-slots" id="time-slots"></div>
+      <button class="confirm-btn" onclick="confirmBooking()">确认预约</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS SCREEN -->
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">预约成功！</div>
+    <div class="success-sub" id="success-sub">顾问将在约定时间联系你<br>请保持手机畅通</div>
+    <div class="success-card" id="success-card"></div>
+    <button class="back-home" onclick="backToFeed()">返回首页</button>
+  </div>
+
+</div>
+
+<script>
+const SCENES = {
+  study: {
+    name: '留学申请',
+    topic: '留学',
+    agentName: '小红 AI 留学顾问',
+    agentEmoji: '🎓',
+    cards: [
+      { title: '英国G5申请全攻略！拿到LSE offer的我来说说真相', tag: '英国留学', color: 'linear-gradient(135deg,#667eea,#764ba2)', user: '牛津小姐姐', likes: '2.3k', height: 'tall' },
+      { title: '211本科GPA3.5能申请QS50吗？我的真实经历', tag: '选校策略', color: 'linear-gradient(135deg,#f093fb,#f5576c)', user: '留学规划师', likes: '1.8k', height: 'normal' },
+      { title: '英国硕士一年花费清单，真实数字来了', tag: '费用规划', color: 'linear-gradient(135deg,#4facfe,#00f2fe)', user: '曼大在读', likes: '3.1k', height: 'tall' },
+      { title: '文书这样写，拒信变offer！爆款模板分享', tag: '文书写作', color: 'linear-gradient(135deg,#43e97b,#38f9d7)', user: '文书顾问Dana', likes: '4.2k', height: 'normal' },
+      { title: '雅思6.5够用吗？各大学语言要求汇总', tag: '语言成绩', color: 'linear-gradient(135deg,#fa709a,#fee140)', user: '留学导师Leo', likes: '2.7k', height: 'normal' },
+      { title: '帝国理工vs UCL到底选哪个？学长深度对比', tag: '院校对比', color: 'linear-gradient(135deg,#30cfd0,#667eea)', user: '双offer学长', likes: '5.6k', height: 'tall' },
+    ],
+    flow: 'study'
+  },
+  deco: {
+    name: '装修设计',
+    topic: '装修',
+    agentName: '小红 AI 装修顾问',
+    agentEmoji: '🏠',
+    cards: [
+      { title: '100㎡三居室北欧风全包装修，最终花了多少钱？', tag: '装修预算', color: 'linear-gradient(135deg,#ffecd2,#fcb69f)', user: '装修记录本', likes: '8.9k', height: 'tall' },
+      { title: '新中式客厅设计方案，一秒提升高级感', tag: '客厅设计', color: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)', user: '室内设计师Mia', likes: '6.3k', height: 'normal' },
+      { title: '踩了哪些坑？装修后悔清单避雷指南', tag: '避坑指南', color: 'linear-gradient(135deg,#d4fc79,#96e6a1)', user: '过来人小王', likes: '12k', height: 'tall' },
+      { title: '厨房改造只花2万，效果媲美豪宅！', tag: '厨房改造', color: 'linear-gradient(135deg,#f6d365,#fda085)', user: '厨房控Nancy', likes: '9.1k', height: 'normal' },
+      { title: '80㎡小户型怎么住得宽敞？10个空间魔法', tag: '小户型', color: 'linear-gradient(135deg,#89f7fe,#66a6ff)', user: '空间魔法师', likes: '7.4k', height: 'normal' },
+      { title: '原木风全屋定制家具清单和费用明细', tag: '全屋定制', color: 'linear-gradient(135deg,#fddb92,#d1fdff)', user: '家居博主小林', likes: '5.8k', height: 'tall' },
+    ],
+    flow: 'deco'
+  },
+  beauty: {
+    name: '医美咨询',
+    topic: '医美',
+    agentName: '小红 AI 医美顾问',
+    agentEmoji: '✨',
+    cards: [
+      { title: '做了热玛吉一个月后的真实变化，附前后对比', tag: '热玛吉', color: 'linear-gradient(135deg,#ff9a9e,#fecfef)', user: '素颜美丽', likes: '15k', height: 'tall' },
+      { title: '玻尿酸填充避雷！这几个部位不建议打', tag: '玻尿酸', color: 'linear-gradient(135deg,#a18cd1,#fbc2eb)', user: '医美科普号', likes: '9.8k', height: 'normal' },
+      { title: '水光针到底值不值？打了6次的真实感受', tag: '水光针', color: 'linear-gradient(135deg,#ffecd2,#fcb69f)', user: '皮肤管理师', likes: '7.2k', height: 'tall' },
+      { title: '双眼皮手术全记录：从预约到恢复30天', tag: '双眼皮', color: 'linear-gradient(135deg,#84fab0,#8fd3f4)', user: '整形小记', likes: '23k', height: 'normal' },
+      { title: '眼周抗衰方案汇总，眼纹眼袋各有解法', tag: '眼部抗衰', color: 'linear-gradient(135deg,#cfd9df,#e2ebf0)', user: '眼科美容师', likes: '6.5k', height: 'normal' },
+      { title: '医美前必看！正规机构怎么辨别？', tag: '避坑指南', color: 'linear-gradient(135deg,#f093fb,#f5576c)', user: '医美维权号', likes: '18k', height: 'tall' },
+    ],
+    flow: 'beauty'
+  }
+};
+
+let currentScene = 'study';
+let browseCount = 0;
+let bubbleShown = false;
+let chatFlow = null;
+let chatStep = 0;
+let selectedSlot = null;
+
+// ---- FEED ----
+function renderFeed(scene) {
+  const s = SCENES[scene];
+  const wf = document.getElementById('waterfall');
+  wf.innerHTML = '';
+  s.cards.forEach((c, i) => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.style.animationDelay = (i * 0.06) + 's';
+    el.innerHTML = `
+      <div class="card-img">
+        <div class="card-img-inner" style="background:${c.color}">
+          <span class="card-tag">${c.tag}</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">${c.title}</div>
+        <div class="card-meta">
+          <div class="card-user">
+            <div class="card-avatar" style="background:${c.color}; width:20px; height:20px; border-radius:50%; flex-shrink:0; margin-right:6px;"></div>
+            <span class="card-user-name">${c.user}</span>
+          </div>
+          <div class="card-likes">❤️ ${c.likes}</div>
+        </div>
+      </div>`;
+    el.onclick = () => onCardClick();
+    wf.appendChild(el);
+  });
+}
+
+function onCardClick() {
+  browseCount++;
+  const pct = Math.min(browseCount / 3 * 100, 100);
+  document.getElementById('intent-fill').style.width = pct + '%';
+  document.getElementById('browse-count').textContent = '已浏览 ' + browseCount + ' 篇';
+  if (browseCount >= 3 && !bubbleShown) {
+    bubbleShown = true;
+    const topic = SCENES[currentScene].topic;
+    document.getElementById('bubble-topic').textContent = topic;
+    setTimeout(() => document.getElementById('ai-bubble').classList.add('show'), 300);
+  }
+}
+
+function switchScene(scene, el) {
+  document.querySelectorAll('.scene-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentScene = scene;
+  browseCount = 0;
+  bubbleShown = false;
+  document.getElementById('intent-fill').style.width = '0%';
+  document.getElementById('browse-count').textContent = '已浏览 0 篇';
+  document.getElementById('ai-bubble').classList.remove('show');
+  renderFeed(scene);
+}
+
+// ---- CHAT ----
+const FLOWS = {
+  study: {
+    intro: ['你好！我是小红 AI 留学顾问 🎓', '我注意到你最近在研究留学相关内容，看起来你正在认真规划这件事。', '能简单说一下你的背景吗？比如本科院校和 GPA？'],
+    choices1: ['985/211，GPA 3.7+', '211，GPA 3.3-3.5', '普通本科，GPA 3.0+'],
+    afterChoice1: (c) => {
+      const map = {
+        '985/211，GPA 3.7+': '不错的背景！985+高GPA 是申请顶尖院校的强力基础 💪\n\n你目标是哪个方向？',
+        '211，GPA 3.3-3.5': '211+GPA 3.3-3.5，这个背景申请 QS50-100 的学校非常有竞争力！\n\n你想去哪个国家？',
+        '普通本科，GPA 3.0+': '普通本科 GPA 3.0 也完全可以申请到好学校，关键看其他软实力的加持。\n\n想了解哪个国家？'
+      };
+      return map[c] || '好的，请问你想去哪个国家留学？';
+    },
+    choices2: ['🇬🇧 英国', '🇺🇸 美国', '🇦🇺 澳大利亚'],
+    afterChoice2: '明白了！根据你的背景，我帮你整理了一份选校方案 👇',
+    showCard: true,
+    getCard: (c1) => {
+      const isStrong = c1 && c1.includes('3.7');
+      return {
+        title: '🎓 选校方案（英国方向）',
+        rows: isStrong ? [
+          { label: '冲刺', value: 'LSE / 帝国理工', tag: 'tag-rush', tagText: '冲刺' },
+          { label: '主申', value: 'UCL / 曼大', tag: 'tag-stable', tagText: '稳妥' },
+          { label: '保底', value: '利兹 / 谢菲尔德', tag: 'tag-safe', tagText: '保底' },
+          { label: '语言要求', value: '雅思 6.5-7.0' },
+          { label: '申请截止', value: '2024年11月-次年1月' },
+        ] : [
+          { label: '冲刺', value: 'UCL / 爱丁堡', tag: 'tag-rush', tagText: '冲刺' },
+          { label: '主申', value: '曼大 / 伯明翰', tag: 'tag-stable', tagText: '稳妥' },
+          { label: '保底', value: '利兹 / 诺丁汉', tag: 'tag-safe', tagText: '保底' },
+          { label: '语言要求', value: '雅思 6.0-6.5' },
+          { label: '申请截止', value: '2024年11月-次年1月' },
+        ]
+      };
+    },
+    afterCard: '这份方案是基于你的背景初步匹配的 📋\n\n我帮你找了 3 家在英国留学方向口碑最好的机构，根据你的情况标出了各自最匹配的优势，直接点击可以进入私信咨询 👇'
+  },
+  deco: {
+    intro: ['嗨！我是小红 AI 装修顾问 🏠', '看你在研究装修相关的内容，是准备要装修新家了吗？', '先说说你的房子情况吧——大概多少平方米？'],
+    choices1: ['60-80㎡ 小户型', '90-120㎡ 中户型', '120㎡+ 大户型'],
+    afterChoice1: (c) => {
+      const map = {
+        '60-80㎡ 小户型': '小户型装修最讲究空间利用！80㎡以内我建议优先考虑隐形收纳和轻量化家具。\n\n你喜欢哪种风格？',
+        '90-120㎡ 中户型': '中户型是最好发挥的面积段，可以既有颜值又有功能。\n\n你偏向哪种装修风格？',
+        '120㎡+ 大户型': '大户型空间充裕，可以做很多设计亮点！预算分配也很关键。\n\n你倾向哪种风格？'
+      };
+      return map[c] || '好的，你喜欢哪种装修风格？';
+    },
+    choices2: ['🪵 原木/北欧风', '🖤 现代简约', '🏮 新中式'],
+    afterChoice2: '完美！根据你的面积和风格偏好，我给你出了一份参考方案 👇',
+    showCard: true,
+    getCard: (c1) => {
+      const isSmall = c1 && c1.includes('60');
+      return {
+        title: '🏠 装修方案报价参考（原木北欧风）',
+        rows: isSmall ? [
+          { label: '硬装（水电+泥木漆）', value: '6-8万' },
+          { label: '全屋定制家具', value: '3-5万' },
+          { label: '厨卫装修', value: '2-3万' },
+          { label: '软装灯具家电', value: '2-4万' },
+          { label: '总预算区间', value: '13-20万', tag: 'tag-stable', tagText: '推荐' },
+        ] : [
+          { label: '硬装（水电+泥木漆）', value: '10-14万' },
+          { label: '全屋定制家具', value: '6-9万' },
+          { label: '厨卫装修', value: '4-6万' },
+          { label: '软装灯具家电', value: '4-7万' },
+          { label: '总预算区间', value: '24-36万', tag: 'tag-stable', tagText: '推荐' },
+        ]
+      };
+    },
+    afterCard: '以上是市场主流价格区间，实际差异较大 📋\n\n我帮你匹配了 3 家适合你预算和风格的装修公司，根据你的需求标出了各自的核心优势，点击直接进入私信 👇'
+  },
+  beauty: {
+    intro: ['你好！我是小红 AI 医美顾问 ✨', '看你最近在研究医美相关内容，有在考虑做什么项目吗？', '可以告诉我你主要想改善哪个方面？'],
+    choices1: ['😊 皮肤状态（水光/抗衰）', '👁 眼部问题（眼袋/眼周）', '🌟 面部轮廓（填充/提升）'],
+    afterChoice1: (c) => {
+      const map = {
+        '😊 皮肤状态（水光/抗衰）': '皮肤管理是医美最受欢迎的方向！效果自然，日常维护型。\n\n你目前最困扰你的是哪个问题？',
+        '👁 眼部问题（眼袋/眼周）': '眼部是最能改变气质的部位，也是医美里性价比很高的方向。\n\n你的预算大概在什么范围？',
+        '🌟 面部轮廓（填充/提升）': '面部轮廓改善能整体提升颜值！不同部位方案差异很大。\n\n你的预算大概在什么范围？'
+      };
+      return map[c] || '好的，你的预算大概在什么范围？';
+    },
+    choices2: ['💰 5000以内', '💰 5000-15000', '💰 15000+'],
+    afterChoice2: '明白了！根据你的诉求和预算，我整理了一份项目推荐方案 👇',
+    showCard: true,
+    getCard: (c1) => {
+      const isSkin = c1 && c1.includes('皮肤');
+      return isSkin ? {
+        title: '✨ 皮肤管理推荐方案',
+        rows: [
+          { label: '基础修护', value: '水光针', tag: 'tag-stable', tagText: '入门推荐' },
+          { label: '提亮祛暗沉', value: '光子嫩肤', tag: 'tag-stable', tagText: '性价比高' },
+          { label: '抗初老', value: '热玛吉 Face', tag: 'tag-rush', tagText: '效果好' },
+          { label: '参考价格', value: '2000-18000元' },
+          { label: '疗程建议', value: '3-6个月维护一次' },
+        ]
+      } : {
+        title: '✨ 眼部改善推荐方案',
+        rows: [
+          { label: '轻度眼周纹', value: '肉毒素+水光', tag: 'tag-stable', tagText: '入门推荐' },
+          { label: '眼袋明显', value: '眼袋去除术', tag: 'tag-rush', tagText: '效果持久' },
+          { label: '双眼皮塑形', value: '全切/埋线双眼皮', tag: 'tag-rush', tagText: '热门' },
+          { label: '参考价格', value: '3000-28000元' },
+          { label: '恢复期', value: '3-14天不等' },
+        ]
+      };
+    },
+    afterCard: '以上方案仅供参考，具体适不适合还需要专业面诊 📋\n\n我帮你筛选了 3 家靠谱医美机构，根据你的诉求和预算标出了各自的核心优势，点击直接联系 👇'
+  }
+};
+
+let currentChoice1 = null;
+
+function openChat() {
+  const s = SCENES[currentScene];
+  document.getElementById('agent-name').textContent = s.agentName;
+  document.getElementById('agent-avatar').textContent = s.agentEmoji;
+  document.getElementById('chat-messages').innerHTML = '';
+  chatFlow = FLOWS[s.flow];
+  chatStep = 0;
+  currentChoice1 = null;
+
+  document.getElementById('feed-screen').classList.remove('active');
+  document.getElementById('chat-screen').classList.add('active');
+
+  // send intro messages with delay
+  chatFlow.intro.forEach((msg, i) => {
+    setTimeout(() => addAIMsg(msg), i * 800 + 300);
+  });
+  setTimeout(() => {
+    addChoices(chatFlow.choices1, 1);
+  }, chatFlow.intro.length * 800 + 600);
+}
+
+function addAIMsg(text, typing = true) {
+  const msgs = document.getElementById('chat-messages');
+  if (typing) {
+    const typingEl = document.createElement('div');
+    typingEl.className = 'msg ai';
+    typingEl.id = 'typing-indicator';
+    typingEl.innerHTML = `<div class="msg-avatar ai">${SCENES[currentScene].agentEmoji}</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+    msgs.appendChild(typingEl);
+    msgs.scrollTop = msgs.scrollHeight;
+    setTimeout(() => {
+      const old = document.getElementById('typing-indicator');
+      if (old) old.remove();
+      appendAIBubble(text);
+    }, 900);
+  } else {
+    appendAIBubble(text);
+  }
+}
+
+function appendAIBubble(text) {
+  const msgs = document.getElementById('chat-messages');
+  const el = document.createElement('div');
+  el.className = 'msg ai';
+  el.innerHTML = `<div class="msg-avatar ai">${SCENES[currentScene].agentEmoji}</div><div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div>`;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addUserMsg(text) {
+  const msgs = document.getElementById('chat-messages');
+  const el = document.createElement('div');
+  el.className = 'msg user';
+  el.innerHTML = `<div class="msg-bubble">${text}</div><div class="msg-avatar user-av">😊</div>`;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addChoices(choices, step) {
+  const msgs = document.getElementById('chat-messages');
+  const row = document.createElement('div');
+  row.className = 'choice-row';
+  row.id = 'choices-' + step;
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => onChoice(c, step, row);
+    row.appendChild(btn);
+  });
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function onChoice(c, step, row) {
+  row.querySelectorAll('.choice-btn').forEach(b => { b.disabled = true; b.style.opacity = 0.5; });
+  addUserMsg(c);
+
+  if (step === 1) {
+    currentChoice1 = c;
+    const reply = chatFlow.afterChoice1(c);
+    setTimeout(() => addAIMsg(reply), 400);
+    setTimeout(() => addChoices(chatFlow.choices2, 2), 1800);
+  } else if (step === 2) {
+    setTimeout(() => addAIMsg(chatFlow.afterChoice2), 400);
+    setTimeout(() => {
+      if (chatFlow.showCard) {
+        const card = chatFlow.getCard(currentChoice1);
+        addResultCard(card);
+      }
+    }, 1600);
+    setTimeout(() => addAIMsg(chatFlow.afterCard), 2800);
+    setTimeout(() => addBookBtn(), 3800);
+  }
+}
+
+function addResultCard(card) {
+  const msgs = document.getElementById('chat-messages');
+  let rowsHtml = card.rows.map(r => `
+    <div class="result-row">
+      <span class="result-row-label">${r.label}</span>
+      ${r.tag ? `<span class="result-row-tag ${r.tag}">${r.tagText}</span><span class="result-row-value" style="margin-left:6px">${r.value}</span>` : `<span class="result-row-value">${r.value}</span>`}
+    </div>`).join('');
+  const el = document.createElement('div');
+  el.className = 'result-card';
+  el.innerHTML = `<div class="result-card-title">${card.title}</div>${rowsHtml}`;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addBookBtn() {
+  // 替换为商家对比卡片
+  addMerchantCards();
+}
+
+// 三场景商家数据
+const MERCHANTS = {
+  study: [
+    {
+      emoji: '🎓', name: '启航留学', sub: '北京 · 英美方向专家',
+      badge: 'badge-top', badgeText: '🔥 本月热门',
+      tags: ['G5院校 offer率82%', '免费背景评估', '全程陪跑'],
+      highlight: '✦ 你的背景匹配成功率高，可冲 LSE / UCL',
+      stats: ['⭐ 4.9分', '👥 2.3k人咨询'],
+      color: 'linear-gradient(135deg,#667eea,#764ba2)',
+      greet: '你好！看到你在研究英国留学，我们在G5方向有丰富经验。我来帮你做个详细的背景评估吧？',
+      quickReplies: ['我想了解选校方案', '文书怎么准备？', '费用大概多少？', '成功率有多高？']
+    },
+    {
+      emoji: '✈️', name: '新通教育', sub: '全国连锁 · 25年经验',
+      badge: 'badge-good', badgeText: '✓ 口碑保障',
+      tags: ['签约保录取', '专属文书导师', '100%退费承诺'],
+      highlight: '✦ 提供签约保障，适合求稳申请策略',
+      stats: ['⭐ 4.8分', '👥 8.1k人咨询'],
+      color: 'linear-gradient(135deg,#f093fb,#f5576c)',
+      greet: '您好！新通教育陪伴了25年留学生圆梦。针对你的情况，我们可以提供签约保录取服务，感兴趣吗？',
+      quickReplies: ['保录取怎么运作？', '退费条款是什么？', '导师是谁？', '先做背景评估']
+    },
+    {
+      emoji: '🌟', name: '飞跃学子', sub: '留学中介 · 性价比之选',
+      badge: 'badge-value', badgeText: '💰 高性价比',
+      tags: ['费用透明', '无隐性收费', '学长学姐内推'],
+      highlight: '✦ 同等服务价格仅为大机构60%，附赠内推资源',
+      stats: ['⭐ 4.7分', '👥 1.2k人咨询'],
+      color: 'linear-gradient(135deg,#43e97b,#38f9d7)',
+      greet: '嗨！我们是飞跃学子，主打费用透明不踩坑。你的背景很不错，给你出一份免费选校清单？',
+      quickReplies: ['收费标准是多少？', '有哪些内推资源？', '先看选校清单', '和大机构有什么差别？']
+    }
+  ],
+  deco: [
+    {
+      emoji: '🏠', name: '东易日盛', sub: '北京 · 全国连锁装饰',
+      badge: 'badge-top', badgeText: '🔥 本月热门',
+      tags: ['30年品牌', '设计+施工一体', '2年保修'],
+      highlight: '✦ 适合你的面积段，北欧风经验丰富，报价透明',
+      stats: ['⭐ 4.8分', '👥 5.6k人咨询'],
+      color: 'linear-gradient(135deg,#ffecd2,#fcb69f)',
+      greet: '您好！看到您在研究装修，东易日盛30年专注家装。您的户型我们做过很多，可以先预约免费量房吗？',
+      quickReplies: ['先约量房', '报价怎么算？', '施工周期多久？', '有没有样板间看？']
+    },
+    {
+      emoji: '✏️', name: '本末装饰', sub: '设计驱动 · 原创方案',
+      badge: 'badge-good', badgeText: '🎨 设计优选',
+      tags: ['知名设计师团队', '全屋原创方案', '软装配套'],
+      highlight: '✦ 你选的原木北欧风正是我们的强项，有大量案例',
+      stats: ['⭐ 4.9分', '👥 2.1k人咨询'],
+      color: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)',
+      greet: '嗨！本末装饰主打设计师品质。你喜欢的原木北欧风我们做了200+案例，发你几个参考一下？',
+      quickReplies: ['发案例给我看', '设计费怎么收？', '能做全屋定制吗？', '设计师是谁？']
+    },
+    {
+      emoji: '🔨', name: '橙家装修', sub: '互联网家装 · 性价比',
+      badge: 'badge-value', badgeText: '💰 透明报价',
+      tags: ['在线出报价', '工程直播监工', '按期完工险'],
+      highlight: '✦ 你的预算范围内可做全屋，价格比传统渠道低20%',
+      stats: ['⭐ 4.7分', '👥 3.8k人咨询'],
+      color: 'linear-gradient(135deg,#d4fc79,#96e6a1)',
+      greet: '你好！橙家主打透明报价，系统自动出清单不玩套路。我现在就能给你出个参考报价，要吗？',
+      quickReplies: ['现在出报价', '监工怎么实现？', '完工险是什么？', '和传统装修差在哪？']
+    }
+  ],
+  beauty: [
+    {
+      emoji: '💉', name: '艺星医美', sub: '连锁机构 · 安全资质',
+      badge: 'badge-top', badgeText: '🔥 本月热门',
+      tags: ['三甲医生坐诊', '正品耗材溯源', '免费复诊'],
+      highlight: '✦ 你关注的项目我们是指定采购商，价格和资质均有保障',
+      stats: ['⭐ 4.8分', '👥 9.2k人咨询'],
+      color: 'linear-gradient(135deg,#ff9a9e,#fecfef)',
+      greet: '您好！艺星在医美安全上有严格标准。看到您在研究皮肤管理项目，我们正在做活动，免费面诊+方案定制，约一下？',
+      quickReplies: ['约免费面诊', '项目价格怎么样？', '医生资质怎么查？', '恢复期大概多久？']
+    },
+    {
+      emoji: '🌸', name: '美莱医美', sub: '专业医疗 · 个性定制',
+      badge: 'badge-good', badgeText: '⭐ 口碑推荐',
+      tags: ['一对一医生方案', '无销售压力', '效果保障协议'],
+      highlight: '✦ 拒绝过度推销，只做适合你的项目，有效果保障协议',
+      stats: ['⭐ 4.9分', '👥 4.3k人咨询'],
+      color: 'linear-gradient(135deg,#a18cd1,#fbc2eb)',
+      greet: '你好！美莱的理念是"做合适的，不做多余的"。你来面诊，医生会如实告诉你哪些项目对你真正有帮助。',
+      quickReplies: ['我想面诊', '效果保障怎么定义？', '你们不推销？', '价格区间是多少？']
+    },
+    {
+      emoji: '✨', name: '新氧精选', sub: '平台直营 · 性价比',
+      badge: 'badge-value', badgeText: '💰 限时优惠',
+      tags: ['平台价格', '真实评价', '闪购套餐'],
+      highlight: '✦ 同款项目比线下渠道便宜30%，有大量真实用户评价可查',
+      stats: ['⭐ 4.7分', '👥 15k人咨询'],
+      color: 'linear-gradient(135deg,#ffecd2,#fcb69f)',
+      greet: '嗨！新氧平台直营，价格透明有保障。你感兴趣的项目现在有限时套餐，要我发给你看看吗？',
+      quickReplies: ['看套餐详情', '评价怎么看？', '和线下机构有什么区别？', '怎么预约？']
+    }
+  ]
+};
+
+let currentMerchant = null;
+
+function addMerchantCards() {
+  const msgs = document.getElementById('chat-messages');
+  const merchants = MERCHANTS[currentScene];
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'merchant-list';
+
+  merchants.forEach((m, i) => {
+    const card = document.createElement('div');
+    card.className = 'merchant-card';
+    card.innerHTML = `
+      <div class="merchant-header">
+        <div class="merchant-avatar" style="background:${m.color}">${m.emoji}</div>
+        <div class="merchant-info">
+          <div class="merchant-name">${m.name}</div>
+          <div class="merchant-sub">${m.sub}</div>
+        </div>
+        <span class="merchant-badge ${m.badge}">${m.badgeText}</span>
+      </div>
+      <div class="merchant-tags">${m.tags.map(t => `<span class="merchant-tag">${t}</span>`).join('')}</div>
+      <div class="merchant-highlight">${m.highlight}</div>
+      <div class="merchant-footer">
+        <div class="merchant-stats">${m.stats.map(s => `<span>${s}</span>`).join('')}</div>
+        <button class="merchant-cta" onclick="openMerchantDM(${i})">进入私信 ›</button>
+      </div>`;
+    wrapper.appendChild(card);
+  });
+
+  msgs.appendChild(wrapper);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function openMerchantDM(idx) {
+  const merchants = MERCHANTS[currentScene];
+  const m = merchants[idx];
+  currentMerchant = m;
+
+  document.getElementById('dm-avatar').textContent = m.emoji;
+  document.getElementById('dm-avatar').style.background = m.color;
+  document.getElementById('dm-name').textContent = m.name;
+
+  const dmMsgs = document.getElementById('dm-messages');
+  dmMsgs.innerHTML = '';
+
+  // AI 需求摘要卡片
+  const summaryEl = document.createElement('div');
+  summaryEl.style.cssText = 'background:#f0f7ff; border-radius:12px; padding:10px 12px; margin-bottom:12px; font-size:12px; color:#555; line-height:1.6;';
+  summaryEl.innerHTML = `<div style="font-weight:700; color:#333; margin-bottom:4px;">📋 AI 需求摘要（已发送给商家）</div>${buildSummary()}`;
+  dmMsgs.appendChild(summaryEl);
+
+  // 商家欢迎语
+  const merchantEl = document.createElement('div');
+  merchantEl.className = 'msg ai';
+  merchantEl.innerHTML = `<div class="msg-avatar ai" style="background:${m.color}; border-radius:10px;">${m.emoji}</div><div class="msg-bubble" style="background:#fff;">${m.greet}</div>`;
+  dmMsgs.appendChild(merchantEl);
+
+  // 快捷回复
+  const qrEl = document.createElement('div');
+  qrEl.className = 'quick-replies';
+  qrEl.style.cssText = 'padding: 0 0 8px 40px;';
+  m.quickReplies.forEach(qr => {
+    const btn = document.createElement('button');
+    btn.className = 'quick-reply';
+    btn.textContent = qr;
+    btn.onclick = () => {
+      sendDmMsgText(qr);
+      qrEl.remove();
+    };
+    qrEl.appendChild(btn);
+  });
+  dmMsgs.appendChild(qrEl);
+
+  document.getElementById('chat-screen').classList.remove('active');
+  document.getElementById('dm-screen').classList.add('active');
+  dmMsgs.scrollTop = dmMsgs.scrollHeight;
+}
+
+function buildSummary() {
+  const scene = currentScene;
+  if (scene === 'study') return `目标方向：英国留学 · 院校：QS前50<br>背景：${currentChoice1 || '211，GPA 3.3-3.5'}<br>诉求：个性化选校方案 + 文书规划`;
+  if (scene === 'deco') return `房屋面积：${currentChoice1 || '90-120㎡'}<br>风格偏好：原木/北欧风<br>诉求：全包报价 + 设计方案`;
+  if (scene === 'beauty') return `关注方向：${currentChoice1 || '皮肤状态（水光/抗衰）'}<br>预算范围：5000-15000元<br>诉求：项目推荐 + 免费面诊`;
+  return '';
+}
+
+function sendDmMsg() {
+  const input = document.getElementById('dm-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  sendDmMsgText(text);
+}
+
+function sendDmMsgText(text) {
+  const dmMsgs = document.getElementById('dm-messages');
+  const userEl = document.createElement('div');
+  userEl.className = 'msg user';
+  userEl.innerHTML = `<div class="msg-bubble">${text}</div><div class="msg-avatar user-av">😊</div>`;
+  dmMsgs.appendChild(userEl);
+  dmMsgs.scrollTop = dmMsgs.scrollHeight;
+
+  // 商家回复
+  setTimeout(() => {
+    const typingEl = document.createElement('div');
+    typingEl.className = 'msg ai';
+    typingEl.id = 'dm-typing';
+    typingEl.innerHTML = `<div class="msg-avatar ai" style="background:${currentMerchant.color}; border-radius:10px;">${currentMerchant.emoji}</div><div class="msg-bubble" style="background:#fff;"><div class="typing"><span></span><span></span><span></span></div></div>`;
+    dmMsgs.appendChild(typingEl);
+    dmMsgs.scrollTop = dmMsgs.scrollHeight;
+
+    setTimeout(() => {
+      document.getElementById('dm-typing')?.remove();
+      const reply = getMerchantReply(text);
+      const replyEl = document.createElement('div');
+      replyEl.className = 'msg ai';
+      replyEl.innerHTML = `<div class="msg-avatar ai" style="background:${currentMerchant.color}; border-radius:10px;">${currentMerchant.emoji}</div><div class="msg-bubble" style="background:#fff;">${reply}</div>`;
+      dmMsgs.appendChild(replyEl);
+      dmMsgs.scrollTop = dmMsgs.scrollHeight;
+    }, 1200);
+  }, 400);
+}
+
+function getMerchantReply(text) {
+  if (text.includes('价格') || text.includes('收费') || text.includes('多少钱') || text.includes('报价')) {
+    return '我们的报价完全透明，根据你的需求初步估算如下：<br><br>· 基础服务套餐：详细咨询后定<br>· 附赠免费评估/量房/面诊<br><br>建议我们先约个面对面了解，出方案后再看报价更准确，你方便什么时间？';
+  }
+  if (text.includes('约') || text.includes('预约') || text.includes('面诊') || text.includes('量房')) {
+    return '好的！我们这边明天和后天都有档期 👇<br><br>📅 明天 14:00 / 16:00<br>📅 后天 10:00 / 15:00<br><br>你倾向哪个时间段？确认后我帮你锁定顾问。';
+  }
+  if (text.includes('案例') || text.includes('作品') || text.includes('样板')) {
+    return '当然！给你发几个最近完成的案例 📸<br><br>🖼 北欧原木风 · 95㎡ · 2023年完工<br>🖼 轻奢简约 · 120㎡ · 2024年完工<br>🖼 新中式 · 80㎡ · 2024年完工<br><br>想深入了解哪个风格的细节？';
+  }
+  return '收到！根据你的需求，我建议我们安排一次详细的沟通。你方便的话可以告诉我大概的时间，我来帮你安排专属顾问 😊';
+}
+
+function backToChat() {
+  document.getElementById('dm-screen').classList.remove('active');
+  document.getElementById('chat-screen').classList.add('active');
+}
+
+function handleUpload() {
+  addUserMsg('📎 [已上传相关材料]');
+  setTimeout(() => addAIMsg('收到你的材料了！我来帮你分析一下 🔍'), 600);
+}
+
+function sendUserMsg() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addUserMsg(text);
+  setTimeout(() => addAIMsg('收到！我来根据你的情况进一步分析…'), 600);
+}
+
+// ---- BOOKING ----
+const SLOTS = [
+  { time: '10:00', date: '明天 周二' },
+  { time: '14:00', date: '明天 周二' },
+  { time: '16:00', date: '明天 周二' },
+  { time: '10:30', date: '后天 周三' },
+  { time: '15:00', date: '后天 周三' },
+  { time: '11:00', date: '周四' },
+];
+
+function openBooking() {
+  const modal = document.getElementById('booking-modal');
+  const slotsEl = document.getElementById('time-slots');
+  slotsEl.innerHTML = '';
+  selectedSlot = null;
+  SLOTS.forEach((s, i) => {
+    const el = document.createElement('div');
+    el.className = 'slot';
+    el.innerHTML = `<div class="slot-time">${s.time}</div><div class="slot-date">${s.date}</div>`;
+    el.onclick = () => {
+      document.querySelectorAll('.slot').forEach(x => x.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedSlot = s;
+    };
+    slotsEl.appendChild(el);
+  });
+  modal.classList.add('show');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('booking-modal')) {
+    document.getElementById('booking-modal').classList.remove('show');
+  }
+}
+
+function confirmBooking() {
+  if (!selectedSlot) {
+    document.querySelectorAll('.slot')[0].click();
+    selectedSlot = SLOTS[0];
+  }
+  document.getElementById('booking-modal').classList.remove('show');
+  showSuccess();
+}
+
+function showSuccess() {
+  const s = chatFlow.successInfo;
+  const slot = selectedSlot || SLOTS[0];
+  document.getElementById('success-card').innerHTML = `
+    <div class="sc-label">顾问</div>
+    <div class="sc-value">${s.agent}</div>
+    <div class="sc-divider"></div>
+    <div class="sc-label">预约时间</div>
+    <div class="sc-value">${slot.date} ${slot.time}</div>
+    <div class="sc-divider"></div>
+    <div class="sc-label">服务内容</div>
+    <div class="sc-value">${s.note}</div>
+  `;
+  document.getElementById('success-screen').classList.add('show');
+}
+
+function backToFeed() {
+  document.getElementById('chat-screen').classList.remove('active');
+  document.getElementById('success-screen').classList.remove('show');
+  document.getElementById('feed-screen').classList.add('active');
+  browseCount = 0;
+  bubbleShown = false;
+  document.getElementById('intent-fill').style.width = '0%';
+  document.getElementById('browse-count').textContent = '已浏览 0 篇';
+  document.getElementById('ai-bubble').classList.remove('show');
+}
+
+// ---- INIT ----
+renderFeed(currentScene);
+</script>
+</body>
+</html>
