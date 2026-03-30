@@ -601,6 +601,87 @@
     flex-shrink: 0;
   }
 
+  /* 问一问页面 */
+  .ww-header {
+    height: 88px; padding-top: 44px;
+    background: #fff;
+    display: flex; align-items: center;
+    padding-left: 16px; padding-right: 16px;
+    gap: 8px;
+    border-bottom: 1px solid #f0f0f0;
+    flex-shrink: 0;
+  }
+  .ww-back { font-size: 22px; cursor: pointer; color: #111; margin-right: 4px; }
+  .ww-title {
+    flex: 1; text-align: center;
+    font-size: 16px; font-weight: 700; color: #111;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+  }
+  .ww-article-scroll {
+    flex: 1; overflow-y: auto;
+    padding: 20px 18px 100px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ww-article-scroll::-webkit-scrollbar { display: none; }
+  .ww-q-title {
+    font-size: 20px; font-weight: 800; color: #111;
+    line-height: 1.4; margin-bottom: 10px;
+  }
+  .ww-source-tag {
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 16px;
+  }
+  .ww-source-tag .ww-verified {
+    font-size: 11px; color: #4B6BFF; font-weight: 600;
+    background: #eef0ff; padding: 2px 8px; border-radius: 10px;
+    display: flex; align-items: center; gap: 3px;
+  }
+  .ww-article-content {
+    font-size: 15px; color: #1a1a1a; line-height: 1.8;
+  }
+  .ww-article-content h3 {
+    font-size: 16px; font-weight: 700; margin: 16px 0 8px;
+  }
+  .ww-article-content ul { padding-left: 0; list-style: none; }
+  .ww-article-content li {
+    padding: 6px 0 6px 12px;
+    border-left: 3px solid #eee;
+    margin-bottom: 8px;
+    font-size: 14px; color: #333; line-height: 1.7;
+  }
+  .ww-article-content li strong { color: #111; }
+  .ww-article-content .highlight { color: #FF2442; font-weight: 700; }
+  .ww-typing-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 0; color: #999; font-size: 13px;
+  }
+  .ww-typing-bar svg { animation: spin 1.2s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* 问一问后续选择区 */
+  .ww-follow-section { margin-top: 24px; }
+  .ww-follow-title { font-size: 13px; color: #999; margin-bottom: 10px; }
+  .ww-choices { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ww-choice {
+    padding: 7px 14px;
+    border: 1.5px solid #4B6BFF;
+    border-radius: 20px; font-size: 13px;
+    color: #4B6BFF; background: #fff; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ww-choice:active { background: #4B6BFF; color: #fff; }
+
+  .ww-input-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: #fff; border-top: 1px solid #f0f0f0;
+    padding: 10px 16px 30px;
+  }
+  .ww-input-inner {
+    display: flex; align-items: center; gap: 8px;
+    background: #f5f5f5; border-radius: 24px;
+    padding: 6px 6px 6px 12px;
+  }
+
   /* MERCHANT DM SCREEN */
   #dm-screen { background: #f5f5f5; }
   .dm-header {
@@ -986,28 +1067,36 @@
   </div>
 
   <!-- 问一问 SCREEN -->
-  <div class="screen" id="wenwen-screen" style="background:#f5f5f5;">
+  <div class="screen" id="wenwen-screen" style="background:#fff;">
     <div class="status-bar">
       <span>9:41</span><div class="notch"></div><span>●●● 5G</span>
     </div>
-    <div class="chat-header">
-      <div class="chat-back" onclick="closeWenwen()">‹</div>
-      <div style="width:36px;height:36px;border-radius:50%;background:#4B6BFF;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2l2.4 4.8L20 8l-4 4 1 5.5L12 15l-5 2.5 1-5.5-4-4 5.6-1.2z" fill="rgba(255,255,255,0.2)"/>
-          <path d="M12 2l2.4 4.8L20 8l-4 4 1 5.5L12 15l-5 2.5 1-5.5-4-4 5.6-1.2z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>
-          <circle cx="12" cy="10" r="2" fill="#fff"/>
+    <!-- 问一问顶部导航 -->
+    <div class="ww-header">
+      <div class="ww-back" onclick="closeWenwen()">‹</div>
+      <div class="ww-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
+          <path d="M12 2l2.4 4.8L20 8l-4 4 1 5.5L12 15l-5 2.5 1-5.5-4-4 5.6-1.2z" fill="#4B6BFF" opacity="0.2"/>
+          <path d="M12 2l2.4 4.8L20 8l-4 4 1 5.5L12 15l-5 2.5 1-5.5-4-4 5.6-1.2z" stroke="#4B6BFF" stroke-width="1.5" stroke-linejoin="round"/>
+          <circle cx="12" cy="10" r="2" fill="#4B6BFF"/>
         </svg>
+        问一问
       </div>
-      <div class="chat-agent-info">
-        <div class="chat-agent-name">问一问</div>
-        <div class="chat-agent-status" style="color:#4B6BFF;">● AI 智能问答</div>
+      <div style="display:flex;gap:14px;font-size:18px;color:#999;">
+        <span>⎙</span><span>☰</span>
       </div>
     </div>
-    <div class="chat-messages" id="wenwen-messages" style="padding-bottom:90px;"></div>
-    <div class="chat-input-bar">
-      <input class="chat-input" id="wenwen-input" placeholder="有问题，问一问…" />
-      <button class="chat-send" style="background:#4B6BFF;" onclick="sendWenwenMsg()">➤</button>
+    <!-- 文章区域 -->
+    <div class="ww-article-scroll" id="ww-article-scroll">
+      <div id="ww-article-body"></div>
+    </div>
+    <!-- 底部输入 -->
+    <div class="ww-input-bar">
+      <div class="ww-input-inner">
+        <span style="font-size:16px;color:#999;">🎤</span>
+        <input class="chat-input" id="wenwen-input" placeholder="有问题，问一问…" style="background:transparent;"/>
+        <button class="chat-send" style="background:#4B6BFF;width:32px;height:32px;font-size:14px;" onclick="sendWenwenMsg()">➤</button>
+      </div>
     </div>
   </div>
 
@@ -1988,43 +2077,31 @@ function backToFeed() {
 }
 
 // ---- 问一问 ----
+let wwCurrentQuery = '';
+
 function openWenwen() {
-  const msgs = document.getElementById('wenwen-messages');
-  msgs.innerHTML = '';
+  const body = document.getElementById('ww-article-body');
+  body.innerHTML = '';
+  wwStep = 0; wwChoice1 = null;
 
-  // 问一问欢迎语
-  const greet = document.createElement('div');
-  greet.className = 'msg ai';
-  greet.innerHTML = `
-    <div class="msg-avatar ai" style="background:#4B6BFF;font-size:12px;">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <path d="M12 2l2.4 4.8L20 8l-4 4 1 5.5L12 15l-5 2.5 1-5.5-4-4 5.6-1.2z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>
-        <circle cx="12" cy="10" r="2" fill="#fff"/>
-      </svg>
-    </div>
-    <div class="msg-bubble" style="background:#fff;">
-      你好！我是<strong style="color:#4B6BFF">问一问</strong>，小红书 AI 助手 🌟<br><br>
-      你可以问我任何问题，我会结合小红书的真实内容帮你找答案。
-    </div>`;
-  msgs.appendChild(greet);
-
-  // 推荐问题（根据当前浏览场景）
+  // 推荐问题卡片
   const suggestions = {
     study: ['英国留学一年费用大概多少？', '211本科GPA3.5能申QS50吗？', '雅思几分够申英国硕士？'],
     deco:  ['100㎡装修全包大概多少钱？', '北欧风和新中式哪个更耐看？', '装修踩坑最多的地方是哪里？'],
     beauty:['热玛吉和超声炮有什么区别？', '水光针多久打一次合适？', '双眼皮埋线和全切选哪个？']
   };
   const qs = suggestions[currentScene] || suggestions.study;
-  const qRow = document.createElement('div');
-  qRow.style.cssText = 'margin: 0 0 8px 40px; display:flex; flex-direction:column; gap:6px;';
+  const intro = document.createElement('div');
+  intro.style.cssText = 'padding: 8px 0 16px;';
+  intro.innerHTML = `<div style="font-size:13px;color:#999;margin-bottom:12px;">✨ 大家都在问</div>`;
   qs.forEach(q => {
-    const btn = document.createElement('button');
-    btn.style.cssText = 'text-align:left; padding:8px 12px; background:#fff; border:1px solid #e8e8ff; border-radius:10px; font-size:13px; color:#333; cursor:pointer; display:flex; justify-content:space-between; align-items:center;';
-    btn.innerHTML = `${q} <span style="color:#4B6BFF;font-size:16px;">›</span>`;
-    btn.onclick = () => { qRow.remove(); sendWenwenMsgText(q); };
-    qRow.appendChild(btn);
+    const btn = document.createElement('div');
+    btn.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8f8f8;border-radius:12px;margin-bottom:8px;cursor:pointer;font-size:14px;color:#222;';
+    btn.innerHTML = `<span>${q}</span><span style="color:#4B6BFF;font-size:18px;">›</span>`;
+    btn.onclick = () => { intro.remove(); sendWenwenMsgText(q); };
+    intro.appendChild(btn);
   });
-  msgs.appendChild(qRow);
+  body.appendChild(intro);
 
   document.getElementById('feed-screen').classList.remove('active');
   document.getElementById('wenwen-screen').classList.add('active');
@@ -2043,149 +2120,191 @@ function sendWenwenMsg() {
   sendWenwenMsgText(text);
 }
 
-const wwSvgAvatar = `<svg viewBox="0 0 44 44" fill="none" style="width:32px;height:32px"><path d="M22 4C13.163 4 6 11.163 6 20c0 5.48 2.73 10.32 6.9 13.3L11.5 40l7.2-3.6C20.1 36.6 21.04 36.7 22 36.7c8.837 0 16-7.163 16-16S30.837 4 22 4z" fill="url(#ddg5)"/><defs><linearGradient id="ddg5" x1="6" y1="4" x2="38" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#6EECD4"/><stop offset="100%" stop-color="#3CC8A8"/></linearGradient></defs></svg>`;
-
 let wwStep = 0;
 let wwChoice1 = null;
 
 function sendWenwenMsgText(text) {
-  const msgs = document.getElementById('wenwen-messages');
+  wwCurrentQuery = text;
+  const body = document.getElementById('ww-article-body');
+  const scroll = document.getElementById('ww-article-scroll');
+  body.innerHTML = '';
 
-  // 用户消息
-  const userEl = document.createElement('div');
-  userEl.className = 'msg user';
-  userEl.innerHTML = `<div class="msg-bubble">${text}</div><div class="msg-avatar user-av">😊</div>`;
-  msgs.appendChild(userEl);
-  msgs.scrollTop = msgs.scrollHeight;
+  // 标题
+  const titleEl = document.createElement('div');
+  titleEl.className = 'ww-q-title';
+  titleEl.textContent = text;
+  body.appendChild(titleEl);
 
-  // 问一问的第一条回复：先给一句内容回答，然后走点点一样的问诊流程
-  wwAddTyping();
+  // 来源标签
+  const srcEl = document.createElement('div');
+  srcEl.className = 'ww-source-tag';
+  srcEl.innerHTML = `<span class="ww-verified">✦ AI 总结小红书和全网内容生成</span>`;
+  body.appendChild(srcEl);
+
+  // loading 状态
+  const loadEl = document.createElement('div');
+  loadEl.className = 'ww-typing-bar'; loadEl.id = 'ww-loading';
+  loadEl.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#4B6BFF" stroke-width="2" stroke-dasharray="28" stroke-dashoffset="10"/></svg><span>正在为你回答，请耐心等待</span>`;
+  body.appendChild(loadEl);
+
   setTimeout(() => {
-    document.getElementById('ww-typing')?.remove();
+    document.getElementById('ww-loading')?.remove();
+    const article = getWenwenArticle(text);
+    const contentEl = document.createElement('div');
+    contentEl.className = 'ww-article-content';
+    contentEl.innerHTML = article;
+    body.appendChild(contentEl);
+    scroll.scrollTop = 0;
 
-    // 根据query先给一个直接回答
-    const quickAns = getWenwenQuickAnswer(text);
-    wwAddAIMsg(quickAns);
-
-    // 然后接入和点点一样的引导流程
+    // 文章后接引导流程
     setTimeout(() => {
-      wwAddAIMsg('想帮你出一份更个性化的方案 😊 先了解一下你的情况？');
-      setTimeout(() => {
-        wwAddChoices(FLOWS[SCENES[currentScene].flow].choices1, 'ww1');
-      }, 900);
-    }, 1000);
-  }, 1200);
+      const divider = document.createElement('div');
+      divider.style.cssText = 'height:1px;background:#f0f0f0;margin:20px 0;';
+      body.appendChild(divider);
+      const followTitle = document.createElement('div');
+      followTitle.style.cssText = 'font-size:14px;font-weight:700;color:#111;margin-bottom:12px;';
+      followTitle.textContent = '想帮你出一份个性化方案，先了解一下你的情况？';
+      body.appendChild(followTitle);
+      wwRenderChoices(FLOWS[SCENES[currentScene].flow].choices1, 'ww1');
+      scroll.scrollTop = scroll.scrollHeight;
+    }, 600);
+  }, 1400);
 }
 
-function getWenwenQuickAnswer(text) {
-  if (text.includes('费用') || text.includes('多少钱')) {
-    if (currentScene === 'study') return '根据小红书真实分享，英国硕士一年总费用约 <strong>25-40万</strong>（含学费+生活费），伦敦偏贵约20%。';
-    if (currentScene === 'deco') return '根据小红书装修帖，100㎡全包参考：经济款15-20万、中档20-35万、高档35万+。';
-    return '根据小红书医美用户分享：水光针2000-4000元/次，热玛吉18000-28000元，双眼皮8000-15000元。';
+function getWenwenArticle(text) {
+  if (currentScene === 'study') {
+    if (text.includes('费用') || text.includes('多少钱') || text.includes('学费')) {
+      return `<p>去英国留学一年的总花费，主要取决于你选择的学校、专业和所在城市。综合来看，一年的总开销大致在 <span class="highlight">25万到50万人民币</span>之间。</p>
+      <h3>💰 学费：专业和学校是关键</h3>
+      <ul>
+        <li><strong>伦敦地区：</strong>帝国理工、UCL、LSE 的硕士学费普遍在 <strong>20万-30万人民币/年</strong>，部分专业更高。</li>
+        <li><strong>非伦敦地区：</strong>曼大、爱丁堡等学费约 <strong>12万-20万人民币/年</strong>，性价比更高。</li>
+        <li><strong>苏格兰地区：</strong>学费标准略低，约 <strong>10万-18万人民币/年</strong>。</li>
+      </ul>
+      <h3>🏠 生活费：城市差异大</h3>
+      <ul>
+        <li><strong>伦敦：</strong>月均生活费约 <strong>1.2-1.8万人民币</strong>，房租是大头。</li>
+        <li><strong>其他城市：</strong>月均约 <strong>0.7-1.2万人民币</strong>，性价比明显更高。</li>
+      </ul>`;
+    }
+    if (text.includes('GPA') || text.includes('能申')) {
+      return `<p>211本科 GPA 3.5 申请 QS50 院校，<span class="highlight">完全可行</span>，已有大量同背景成功案例。</p>
+      <h3>✅ 可冲学校参考</h3>
+      <ul><li><strong>冲刺：</strong>UCL、爱丁堡（部分专业）</li><li><strong>稳妥：</strong>曼大、伯明翰、谢菲尔德</li><li><strong>保底：</strong>利兹、诺丁汉、南安普顿</li></ul>
+      <h3>📝 提升成功率的关键</h3>
+      <ul><li><strong>文书：</strong>突出跨学科背景和实习经历，有具体数据最好</li><li><strong>语言：</strong>雅思建议冲到 7.0+，部分学校 6.5 可接受</li><li><strong>时间：</strong>建议 10月前提交，越早越好</li></ul>`;
+    }
+    return `<p>根据小红书留学经验帖综合整理，以下是关于「${text}」的核心信息：</p>
+    <h3>📋 核心要点</h3>
+    <ul><li><strong>申请时间轴：</strong>建议提前12-18个月开始规划，9-11月是申请旺季</li><li><strong>材料清单：</strong>成绩单、语言成绩、PS、推荐信、CV缺一不可</li><li><strong>常见误区：</strong>不要把所有鸡蛋放在冲刺学校，稳妥和保底同样重要</li></ul>`;
   }
-  if (text.includes('GPA') || text.includes('申请') || text.includes('能申')) return '211本科GPA3.5申QS50完全可行 ✅，关键在文书差异化 + 实习经历匹配专业 + 雅思7.0+。';
-  if (text.includes('区别') || text.includes('哪个')) return '热玛吉效果持久2年+但价格高；超声炮入门首选，维持6-12个月。预算充足选热玛吉，初次尝试选超声炮。';
-  if (text.includes('北欧') || text.includes('中式') || text.includes('风格')) return '北欧风清爽耐看、维护成本低；新中式更有文化底蕴但软装成本高。根据你的预算和生活习惯选择更合适。';
-  return '根据小红书上的真实内容，这个问题有大量用户分享。我来帮你结合自己的情况做个分析 👇';
+  if (currentScene === 'deco') {
+    if (text.includes('费用') || text.includes('多少钱')) {
+      return `<p>100㎡装修全包费用，综合小红书真实案例，大致在 <span class="highlight">20万-40万人民币</span>之间，差异主要来自材料档次和城市。</p>
+      <h3>💰 费用拆分参考</h3>
+      <ul><li><strong>硬装（水电+泥木漆）：</strong>10-15万</li><li><strong>全屋定制家具：</strong>5-10万</li><li><strong>厨卫专项：</strong>3-6万</li><li><strong>软装+灯具+家电：</strong>4-8万</li></ul>
+      <h3>⚠️ 常见踩坑</h3>
+      <ul><li><strong>报价陷阱：</strong>低报价往往靠后期增项赚差价，要看明细</li><li><strong>施工周期：</strong>100㎡正常施工3-5个月，承诺2个月要谨慎</li></ul>`;
+    }
+    return `<p>根据小红书装修经验综合整理，以下是「${text}」的关键信息。</p>
+    <h3>🏠 核心建议</h3>
+    <ul><li><strong>风格确定：</strong>装修前先确定风格，中途改动成本极高</li><li><strong>找好施工队：</strong>口碑比价格重要，看实际案例和业主评价</li><li><strong>预留预算：</strong>总预算预留10-15%应对增项</li></ul>`;
+  }
+  if (text.includes('区别') || text.includes('热玛吉') || text.includes('超声')) {
+    return `<p>热玛吉和超声炮都是抗衰项目，但原理和适用人群不同，综合小红书真实测评来看：</p>
+    <h3>⚡ 核心区别</h3>
+    <ul><li><strong>热玛吉：</strong>射频技术，主打紧致提拉，效果维持 <strong>2年+</strong>，价格18000-28000元，适合25-45岁有明显松弛迹象的人</li><li><strong>超声炮：</strong>超声波技术，作用于深层筋膜，效果维持 <strong>6-12个月</strong>，价格4000-12000元，适合入门首次尝试</li></ul>
+    <h3>💡 怎么选</h3>
+    <ul><li><strong>预算充足、追求持久：</strong>选热玛吉，一次到位</li><li><strong>初次尝试、预算有限：</strong>选超声炮，风险更低</li></ul>`;
+  }
+  return `<p>根据小红书医美用户真实分享，综合整理「${text}」的核心信息。</p>
+  <h3>✦ 关键提示</h3>
+  <ul><li><strong>选机构：</strong>优先看资质认证和医生执照，不要只看价格</li><li><strong>先面诊：</strong>任何项目都应先面诊，由医生评估是否适合</li><li><strong>恢复期：</strong>不同项目差异大，做前务必了解清楚</li></ul>`;
 }
 
-function wwAddTyping() {
-  const msgs = document.getElementById('wenwen-messages');
-  const el = document.createElement('div');
-  el.className = 'msg ai'; el.id = 'ww-typing';
-  el.innerHTML = `<div class="msg-avatar ai">${wwSvgAvatar}</div><div class="msg-bubble" style="background:#fff;"><div class="typing"><span></span><span></span><span></span></div></div>`;
-  msgs.appendChild(el);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function wwAddAIMsg(text) {
-  const msgs = document.getElementById('wenwen-messages');
-  const el = document.createElement('div');
-  el.className = 'msg ai';
-  el.innerHTML = `<div class="msg-avatar ai">${wwSvgAvatar}</div><div class="msg-bubble" style="background:#fff;">${text.replace(/\n/g,'<br>')}</div>`;
-  msgs.appendChild(el);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function wwAddChoices(choices, step) {
-  const msgs = document.getElementById('wenwen-messages');
+function wwRenderChoices(choices, step) {
+  const body = document.getElementById('ww-article-body');
+  const scroll = document.getElementById('ww-article-scroll');
   const row = document.createElement('div');
-  row.className = 'choice-row';
+  row.className = 'ww-choices'; row.id = 'ww-choices-' + step;
   choices.forEach(c => {
     const btn = document.createElement('button');
-    btn.className = 'choice-btn';
+    btn.className = 'ww-choice';
     btn.textContent = c;
     btn.onclick = () => onWwChoice(c, step, row);
     row.appendChild(btn);
   });
-  msgs.appendChild(row);
-  msgs.scrollTop = msgs.scrollHeight;
+  body.appendChild(row);
+  scroll.scrollTop = scroll.scrollHeight;
 }
 
-function onWwChoice(c, step, row) {
-  row.querySelectorAll('.choice-btn').forEach(b => { b.disabled = true; b.style.opacity = 0.5; });
-  const msgs = document.getElementById('wenwen-messages');
-  const userEl = document.createElement('div');
-  userEl.className = 'msg user';
-  userEl.innerHTML = `<div class="msg-bubble">${c}</div><div class="msg-avatar user-av">😊</div>`;
-  msgs.appendChild(userEl);
+function wwAddChoices(choices, step) { wwRenderChoices(choices, step); }
 
+function onWwChoice(c, step, row) {
+  row.querySelectorAll('.ww-choice').forEach(b => { b.disabled = true; b.style.opacity = 0.5; });
+  const body = document.getElementById('ww-article-body');
+  const scroll = document.getElementById('ww-article-scroll');
   const flow = FLOWS[SCENES[currentScene].flow];
+
+  // 用户选择标签
+  const selEl = document.createElement('div');
+  selEl.style.cssText = 'display:inline-block;margin:8px 0;padding:5px 14px;background:#4B6BFF;color:#fff;border-radius:20px;font-size:13px;';
+  selEl.textContent = c;
+  body.appendChild(selEl);
 
   if (step === 'ww1') {
     wwChoice1 = c;
-    wwAddTyping();
-    setTimeout(() => {
-      document.getElementById('ww-typing')?.remove();
-      wwAddAIMsg(flow.afterChoice1(c));
-      setTimeout(() => wwAddChoices(flow.choices2, 'ww2'), 900);
-    }, 800);
+    const reply = flow.afterChoice1(c);
+    const replyEl = document.createElement('p');
+    replyEl.style.cssText = 'font-size:14px;color:#333;line-height:1.7;margin:10px 0;';
+    replyEl.textContent = reply.replace(/<br>/g, '\n').replace(/<[^>]+>/g, '');
+    body.appendChild(replyEl);
+    setTimeout(() => { wwRenderChoices(flow.choices2, 'ww2'); scroll.scrollTop = scroll.scrollHeight; }, 400);
   } else if (step === 'ww2') {
-    wwAddTyping();
-    setTimeout(() => {
-      document.getElementById('ww-typing')?.remove();
-      wwAddAIMsg(flow.afterChoice2);
-      // 方案卡片
-      setTimeout(() => {
-        if (flow.showCard) {
-          const card = flow.getCard(wwChoice1);
-          const cardEl = document.createElement('div');
-          cardEl.className = 'result-card';
-          let rowsHtml = card.rows.map(r => `<div class="result-row"><span class="result-row-label">${r.label}</span>${r.tag ? `<span class="result-row-tag ${r.tag}">${r.tagText}</span><span class="result-row-value" style="margin-left:6px">${r.value}</span>` : `<span class="result-row-value">${r.value}</span>`}</div>`).join('');
-          cardEl.innerHTML = `<div class="result-card-title">${card.title}</div>${rowsHtml}`;
-          msgs.appendChild(cardEl);
-        }
-        // afterCard 文字
-        setTimeout(() => {
-          wwAddAIMsg(flow.afterCard);
-          // 商家对比卡片（复用同一份）
-          setTimeout(() => {
-            const merchants = MERCHANTS[currentScene];
-            const wrapper = document.createElement('div');
-            wrapper.className = 'merchant-list';
-            merchants.forEach((m, i) => {
-              const card2 = document.createElement('div');
-              card2.className = 'merchant-card';
-              card2.innerHTML = `
-                <div class="merchant-header">
-                  <div class="merchant-avatar" style="background:${m.color}">${m.emoji}</div>
-                  <div class="merchant-info"><div class="merchant-name">${m.name}</div><div class="merchant-sub">${m.sub}</div></div>
-                  <span class="merchant-badge ${m.badge}">${m.badgeText}</span>
-                </div>
-                <div class="merchant-tags">${m.tags.map(t=>`<span class="merchant-tag">${t}</span>`).join('')}</div>
-                <div class="merchant-highlight">${m.highlight}</div>
-                <div class="merchant-footer">
-                  <div class="merchant-stats">${m.stats.map(s=>`<span>${s}</span>`).join('')}</div>
-                  <button class="merchant-cta" onclick="openMerchantDMFromWW(${i})">进入私信 ›</button>
-                </div>`;
-              wrapper.appendChild(card2);
-            });
-            msgs.appendChild(wrapper);
-            msgs.scrollTop = msgs.scrollHeight;
-          }, 800);
-        }, 1200);
-      }, 800);
-    }, 800);
+    const divider = document.createElement('div');
+    divider.style.cssText = 'height:1px;background:#f0f0f0;margin:16px 0;';
+    body.appendChild(divider);
+
+    // 方案卡片
+    if (flow.showCard) {
+      const card = flow.getCard(wwChoice1);
+      const cardEl = document.createElement('div');
+      cardEl.className = 'result-card';
+      cardEl.style.margin = '0 0 12px 0';
+      let rowsHtml = card.rows.map(r => `<div class="result-row"><span class="result-row-label">${r.label}</span>${r.tag ? `<span class="result-row-tag ${r.tag}">${r.tagText}</span><span class="result-row-value" style="margin-left:6px">${r.value}</span>` : `<span class="result-row-value">${r.value}</span>`}</div>`).join('');
+      cardEl.innerHTML = `<div class="result-card-title">${card.title}</div>${rowsHtml}`;
+      body.appendChild(cardEl);
+    }
+
+    // afterCard 引导语
+    const guideEl = document.createElement('p');
+    guideEl.style.cssText = 'font-size:13px;color:#666;line-height:1.6;margin:10px 0 14px;';
+    guideEl.innerHTML = flow.afterCard.replace(/\n/g,'<br>');
+    body.appendChild(guideEl);
+
+    // 商家卡片
+    const merchants = MERCHANTS[currentScene];
+    const wrapper = document.createElement('div');
+    wrapper.className = 'merchant-list';
+    merchants.forEach((m, i) => {
+      const card2 = document.createElement('div');
+      card2.className = 'merchant-card';
+      card2.innerHTML = `
+        <div class="merchant-header">
+          <div class="merchant-avatar" style="background:${m.color}">${m.emoji}</div>
+          <div class="merchant-info"><div class="merchant-name">${m.name}</div><div class="merchant-sub">${m.sub}</div></div>
+          <span class="merchant-badge ${m.badge}">${m.badgeText}</span>
+        </div>
+        <div class="merchant-tags">${m.tags.map(t=>`<span class="merchant-tag">${t}</span>`).join('')}</div>
+        <div class="merchant-highlight">${m.highlight}</div>
+        <div class="merchant-footer">
+          <div class="merchant-stats">${m.stats.map(s=>`<span>${s}</span>`).join('')}</div>
+          <button class="merchant-cta" onclick="openMerchantDMFromWW(${i})">进入私信 ›</button>
+        </div>`;
+      wrapper.appendChild(card2);
+    });
+    body.appendChild(wrapper);
+    scroll.scrollTop = scroll.scrollHeight;
   }
 }
 
