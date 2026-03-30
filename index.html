@@ -1380,6 +1380,7 @@ const MERCHANTS = {
 };
 
 let currentMerchant = null;
+let dmRoundCount = 0;
 
 function addMerchantCards() {
   const msgs = document.getElementById('chat-messages');
@@ -1417,6 +1418,7 @@ function openMerchantDM(idx) {
   const merchants = MERCHANTS[currentScene];
   const m = merchants[idx];
   currentMerchant = m;
+  dmRoundCount = 0;
 
   document.getElementById('dm-avatar').textContent = m.emoji;
   document.getElementById('dm-avatar').style.background = m.color;
@@ -1453,17 +1455,7 @@ function openMerchantDM(idx) {
   });
   dmMsgs.appendChild(qrEl);
 
-  // 自动推出预约按钮
-  setTimeout(() => {
-    const bookLabel = chatFlow ? chatFlow.bookLabel : '预约咨询';
-    const bookMap = { study: '预约一对一规划咨询', deco: '预约免费量房+设计方案', beauty: '预约免费面诊' };
-    const label = bookMap[currentScene] || bookLabel || '预约咨询';
-    const bookEl = document.createElement('div');
-    bookEl.style.cssText = 'margin: 0 0 8px 40px;';
-    bookEl.innerHTML = `<button class="book-btn" style="max-width:260px" onclick="openBooking()">📅 ${label}</button>`;
-    dmMsgs.appendChild(bookEl);
-    dmMsgs.scrollTop = dmMsgs.scrollHeight;
-  }, 1200);
+  // 不自动出现预约按钮，等用户和商家有一轮对话后再引导
 
   document.getElementById('chat-screen').classList.remove('active');
   document.getElementById('dm-screen').classList.add('active');
@@ -1515,17 +1507,53 @@ function sendDmMsgText(text) {
   }, 400);
 }
 
+let dmRoundCount = 0; // 记录私信对话轮数
+
 function getMerchantReply(text) {
-  if (text.includes('价格') || text.includes('收费') || text.includes('多少钱') || text.includes('报价')) {
-    return '我们的报价完全透明，根据你的需求初步估算如下：<br><br>· 基础服务套餐：详细咨询后定<br>· 附赠免费评估/量房/面诊<br><br>建议我们先约个面对面了解，出方案后再看报价更准确，你方便什么时间？';
+  dmRoundCount++;
+  const bookMap = {
+    study: { label: '预约一对一规划咨询', reply: '我这边可以帮你做一份详细的选校清单和时间规划，建议约个一对一深聊，效果更好。要不要预约一下？' },
+    deco:  { label: '预约免费量房+设计方案', reply: '报价需要结合实际户型来算，量房完才能给你准确数字。我们提供免费上门量房服务，要约一下吗？' },
+    beauty:{ label: '预约免费面诊', reply: '具体适不适合、用什么方案，还是要医生见面评估才准确。我帮你约个免费面诊，怎么样？' }
+  };
+  const scene = bookMap[currentScene] || bookMap.beauty;
+
+  let reply = '';
+
+  if (text.includes('选校') || text.includes('方案') || text.includes('院校') || text.includes('offer')) {
+    reply = '好的！根据你的背景（211，GPA 3.4），我初步整理了一份选校思路：<br><br>🎯 冲刺：UCL / 爱丁堡<br>✅ 主申：曼大 / 谢菲尔德<br>🛡 保底：利兹 / 伯明翰<br><br>文书方向建议围绕「跨学科背景 + 实习经历」来写，竞争力会更强。';
+  } else if (text.includes('文书') || text.includes('PS') || text.includes('personal')) {
+    reply = '文书是留学申请里拉开差距的关键！建议你的PS结构分三段：学术动机 → 实践经历 → 未来规划，每段都要有具体细节，不能写成流水账。<br><br>我们有专属文书导师，可以1对1帮你打磨。';
+  } else if (text.includes('费用') || text.includes('价格') || text.includes('多少钱') || text.includes('收费')) {
+    reply = '我们的服务费用根据套餐不同有差异：<br><br>· 基础选校+文书套餐：1.8万起<br>· 全程陪跑套餐：3.5万起<br>· 保录取签约：另议<br><br>相比行业均价低20-30%，且全程透明不加价。';
+  } else if (text.includes('案例') || text.includes('成功') || text.includes('样板') || text.includes('作品')) {
+    reply = '当然！给你看几个近期案例 📸<br><br>🖼 北欧原木风 · 95㎡ · 落地预算22万<br>🖼 轻奢简约 · 110㎡ · 落地预算31万<br>🖼 新中式 · 88㎡ · 落地预算19万<br><br>每个案例都有完整施工记录，想看哪个风格的细节？';
+  } else if (text.includes('导师') || text.includes('医生') || text.includes('设计师') || text.includes('谁')) {
+    reply = '我们的顾问都是行业10年以上的专家，资质可以在平台主页查到。你这边情况比较适合安排王老师，她专注英国方向8年，手上有很多类似背景的成功案例。';
+  } else {
+    reply = '收到！这个问题我来详细解答。' + (currentScene === 'study' ? '留学申请涉及的环节比较多，选校、文书、语言、背调缺一不可，建议系统规划。' : currentScene === 'deco' ? '装修最重要的是前期规划好，避免后期改动造成浪费，我们有完整的装前顾问服务。' : '医美项目的选择和机构资质都很重要，建议先面诊再决定，不要只看价格。');
   }
-  if (text.includes('约') || text.includes('预约') || text.includes('面诊') || text.includes('量房')) {
-    return '好的！你可以直接点上方的预约按钮选择门店和时间，我们会提前联系你确认 😊';
+
+  // 第一轮对话结束后，商家主动引导预约
+  if (dmRoundCount === 1) {
+    setTimeout(() => {
+      const dmMsgs = document.getElementById('dm-messages');
+      // 商家追问
+      const followEl = document.createElement('div');
+      followEl.className = 'msg ai';
+      followEl.innerHTML = `<div class="msg-avatar ai" style="background:${currentMerchant.color}; border-radius:10px;">${currentMerchant.emoji}</div><div class="msg-bubble" style="background:#fff;">${scene.reply}</div>`;
+      dmMsgs.appendChild(followEl);
+
+      // 预约按钮
+      const bookEl = document.createElement('div');
+      bookEl.style.cssText = 'margin: 4px 0 8px 40px;';
+      bookEl.innerHTML = `<button class="book-btn" style="max-width:260px" onclick="openBooking()">📅 ${scene.label}</button>`;
+      dmMsgs.appendChild(bookEl);
+      dmMsgs.scrollTop = dmMsgs.scrollHeight;
+    }, 1500);
   }
-  if (text.includes('案例') || text.includes('作品') || text.includes('样板')) {
-    return '当然！给你发几个最近完成的案例 📸<br><br>🖼 北欧原木风 · 95㎡ · 2023年完工<br>🖼 轻奢简约 · 120㎡ · 2024年完工<br>🖼 新中式 · 80㎡ · 2024年完工<br><br>想深入了解哪个风格的细节？';
-  }
-  return '收到！根据你的需求，我建议我们安排一次详细的沟通。你方便的话可以告诉我大概的时间，我来帮你安排专属顾问 😊';
+
+  return reply;
 }
 
 function backToChat() {
